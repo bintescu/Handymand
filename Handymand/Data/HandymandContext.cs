@@ -12,20 +12,18 @@ namespace Handymand.Data
 {
     public class HandymandContext : DbContext
     {
-        //public DbSet<DatabaseModel> DataBaseModels { get; set; }
 
+        public DbSet<User> Users { get; set; }
+        public DbSet<Client> Clients { get; set; }
+        public DbSet<Freelancer> Freelancers { get; set; }
 
-        //One to Many
+        public DbSet<Skill> Skills { get; set; }
+        public DbSet<FreelancersSkills> FreelancersSkills { get; set; }
 
-        public DbSet<Model1OM> Model1OMs { get; set; }
-        public DbSet<Model2OM> Model2OMs { get; set; }
+        public DbSet<Contract> Contracts { get; set; }
+        public DbSet<ContractsSkills> ContractsSkills { get; set; }
 
-        public DbSet<Model1OO> Model1OOs { get; set; }
-        public DbSet<Model2OO> Model2OOs { get; set; }
-
-        public DbSet<Model1MM> Model1MMs { get; set; }
-        public DbSet<Model2MM> Model2MMs { get; set; }
-        public DbSet<ModelsRelation> ModelsRelations { get; set; }
+/*        public DbSet<Feedback> Feedbacks { get; set; }*/
 
         public HandymandContext(DbContextOptions<HandymandContext> options) : base(options)
         {
@@ -34,37 +32,62 @@ namespace Handymand.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+
+            //Properties
+
+            modelBuilder.Entity<User>().Property(u => u.Amount).HasPrecision(12, 2);
+
+            modelBuilder.Entity<Contract>().Property(u => u.PaymentAmount).HasPrecision(12, 2);
             //One to Many
-            modelBuilder.Entity<Model1OM>()
-                .HasMany(m2 => m2.Models2OM).WithOne(m1 => m1.Model1OM);
 
-            /*            modelBuilder.Entity<Model2OM>()
-                            .HasOne(m1 => m1.Model1OM).WithMany(m2 => m2.Models2OM);*/
 
+            modelBuilder.Entity<Contract>()
+                .HasOne(c => c.CreationUser).WithMany(u => u.CreatedContracts).HasForeignKey(c => c.IdCreationUser);
+
+/*            modelBuilder.Entity<Contract>()
+                .HasOne(c => c.RefferedUser).WithMany(u => u.SubscribedContracts).HasForeignKey(c => c.IdRefferedUser);
+*/
+
+/*            modelBuilder.Entity<Feedback>()
+                .HasOne(f => f.CreationUser).WithMany(u => u.SentFeedbacks).HasForeignKey(f => f.IdCreationUser);*/
 
             //One to One
 
-            modelBuilder.Entity<Model1OO>()
-                .HasOne(m2 => m2.Model2OO).WithOne(m1 => m1.Model1OO).HasForeignKey<Model2OO>(m1 => m1.Model1Id);
+            modelBuilder.Entity<User>()
+                .HasOne(u => u.FreelancerAccount).WithOne(f => f.User).HasForeignKey<Freelancer>(f => f.IdUser);
 
-
+            modelBuilder.Entity<User>()
+                .HasOne(u => u.ClientAccount).WithOne(c => c.User).HasForeignKey<Client>(c => c.IdUser);
 
             //Many to Many
-
-            modelBuilder.Entity<ModelsRelation>().HasKey(key => new
+            modelBuilder.Entity<FreelancersSkills>().HasKey(key => new
             {
-                key.Model1MMId,
-                key.Model2MMId
+                key.IdFreelancer,
+                key.IdSkill
             });
 
-            modelBuilder.Entity<ModelsRelation>()
-                .HasOne<Model1MM>(mr => mr.Model1MM).WithMany(m1 => m1.ModelsRelations)
-                .HasForeignKey(mr => mr.Model1MMId);
+            modelBuilder.Entity<FreelancersSkills>()
+                .HasOne<Freelancer>(fs => fs.Freelancer).WithMany(f => f.FreelancersSkills)
+                .HasForeignKey(fs => fs.IdFreelancer);
 
-            modelBuilder.Entity<ModelsRelation>()
-                        .HasOne<Model2MM>(mr => mr.Model2MM).WithMany(m1 => m1.ModelsRelations)
-                        .HasForeignKey(mr => mr.Model2MMId);
+            modelBuilder.Entity<FreelancersSkills>()
+                .HasOne<Skill>(fs => fs.Skill).WithMany(s => s.FreelancersSkills)
+                .HasForeignKey(fs => fs.IdSkill);
 
+
+            modelBuilder.Entity<ContractsSkills>().HasKey(key => new 
+            { 
+                key.IdContract,
+                key.IdSkill
+            });
+
+            modelBuilder.Entity<ContractsSkills>()
+                .HasOne<Contract>(cs => cs.Contract).WithMany(c => c.ContractSkills)
+                .HasForeignKey(cs => cs.IdContract);
+
+            modelBuilder.Entity<ContractsSkills>()
+                .HasOne<Skill>(cs => cs.Skill).WithMany(s => s.ContractSkills)
+                .HasForeignKey(cs => cs.IdSkill);
 
             base.OnModelCreating(modelBuilder);
         }

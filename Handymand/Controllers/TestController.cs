@@ -23,7 +23,7 @@ namespace Handymand.Controllers
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            var result = await _Context.ModelsRelations.ToListAsync();
+            var result = await _Context.Contracts.ToListAsync();
             return Ok(result);
         }
     }
