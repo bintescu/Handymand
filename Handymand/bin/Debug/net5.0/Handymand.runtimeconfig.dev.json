@@ -1,0 +1,8 @@
+{
+  "runtimeOptions": {
+    "additionalProbingPaths": [
+      "C:\\Users\\Valhalla\\.dotnet\\store\\|arch|\\|tfm|",
+      "C:\\Users\\Valhalla\\.nuget\\packages"
+    ]
+  }
+}
