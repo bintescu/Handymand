@@ -1,4 +1,6 @@
 using Handymand.Data;
+using Handymand.Repository.DatabaseRepositories;
+using Handymand.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -34,7 +36,14 @@ namespace Handymand
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Handymand", Version = "v1" });
             });
-            services.AddDbContext<HandymandContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"))); 
+            services.AddDbContext<HandymandContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+
+            services.AddTransient<IContractRepository, ContractRepository>();
+            services.AddTransient<IUserRepository, UserRepository>();
+            services.AddTransient<IContractService, IContractService>();
+        
+        
+        
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

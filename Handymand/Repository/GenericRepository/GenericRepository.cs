@@ -12,7 +12,7 @@ namespace Handymand.Repository.GenericRepository
     public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEntity : BaseEntity
     {
         private readonly HandymandContext _context;
-        private readonly DbSet<TEntity> _table;
+        protected readonly DbSet<TEntity> _table;
 
         public GenericRepository(HandymandContext context)
         {

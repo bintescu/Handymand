@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Handymand.Models
@@ -19,6 +20,10 @@ namespace Handymand.Models
         public Client ClientAccount { get; set; }
         public Freelancer FreelancerAccount { get; set; }
 
+        [JsonIgnore]
+        public string PasswordHash { get; set; }
+
+        public Role Role { get; set; }
         //public ICollection<Feedback> SentFeedbacks { get; set; }
 
     }
