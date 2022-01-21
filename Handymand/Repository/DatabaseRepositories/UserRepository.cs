@@ -35,5 +35,10 @@ namespace Handymand.Repository.DatabaseRepositories
                 .Include(x => x.FreelancerAccount).FirstOrDefault();
 
         }
+
+        public User GetByUsername(string username)
+        {
+            return _table.Where(i => String.Equals(i.Username, username)).FirstOrDefault();
+        }
     }
 }

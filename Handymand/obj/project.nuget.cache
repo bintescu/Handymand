@@ -1,9 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "WiB296H2yz4HuAAtZ6tXTfgiuy5K+ScJL1jI5qGbfj7kxYc1QCl5GAlXRBiAq2Js0ky0O6yXjWCEQWaN8m/zlQ==",
+  "dgSpecHash": "RfJ9d1ytinWbArB9NsT67dm7rARtUVl/1f9UvnweYiSvkC2UN+HuP77kDa/gRSE/s6jdImZXkrhwBYCz2gluOQ==",
   "success": true,
   "projectFilePath": "D:\\A AN FACULTATE 4\\Licenta\\Handymand\\Handymand\\Handymand.csproj",
   "expectedPackageFiles": [
+    "C:\\Users\\Valhalla\\.nuget\\packages\\bcrypt.net-core\\1.6.0\\bcrypt.net-core.1.6.0.nupkg.sha512",
     "C:\\Users\\Valhalla\\.nuget\\packages\\entityframework\\6.4.4\\entityframework.6.4.4.nupkg.sha512",
     "C:\\Users\\Valhalla\\.nuget\\packages\\humanizer.core\\2.8.26\\humanizer.core.2.8.26.nupkg.sha512",
     "C:\\Users\\Valhalla\\.nuget\\packages\\microsoft.csharp\\4.7.0\\microsoft.csharp.4.7.0.nupkg.sha512",

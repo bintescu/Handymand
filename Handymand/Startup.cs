@@ -1,6 +1,8 @@
 using Handymand.Data;
 using Handymand.Repository.DatabaseRepositories;
 using Handymand.Services;
+using Handymand.Utilities;
+using Handymand.Utilities.JWTUtils;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -10,6 +12,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Logging;
 using Microsoft.OpenApi.Models;
 using System;
 using System.Collections.Generic;
@@ -40,9 +43,13 @@ namespace Handymand
 
             services.AddTransient<IContractRepository, ContractRepository>();
             services.AddTransient<IUserRepository, UserRepository>();
-            services.AddTransient<IContractService, IContractService>();
-        
-        
+            services.AddTransient<IContractService, ContractService>();
+
+            services.AddScoped<IJWTUtils, JWTUtils>();
+
+            services.AddScoped<IUserService, UserService>();
+
+            services.Configure<AppSettings>(Configuration.GetSection("AppSettings"));
         
         }
 
@@ -60,12 +67,19 @@ namespace Handymand
 
             app.UseRouting();
 
+            app.UseMiddleware<JWTMiddleware>();
+
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
             });
+
+            if (env.IsDevelopment())
+            {
+                IdentityModelEventSource.ShowPII = true;
+            }
         }
     }
 }
