@@ -1,4 +1,5 @@
-﻿using Handymand.Services;
+﻿using Handymand.Models.DTOs;
+using Handymand.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -19,7 +20,7 @@ namespace Handymand.Controllers
             _contractService = contractService;
         }
 
-        [HttpGet("allavailablecontracts")]
+        [HttpGet("allavailable")]
         public IActionResult GetAllAvailableContracts()
         {
             try
@@ -34,5 +35,57 @@ namespace Handymand.Controllers
             }
 
         }
+
+        [HttpPut("update")]
+        public IActionResult UpdateContract(ContractDTO contract)
+        {
+            try
+            {
+                var result = _contractService.UpdateContract(contract);
+                return Ok(result);
+            }
+            catch(Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
+
+        [HttpPost("create")]
+        public IActionResult CreateContract(ContractDTO contract)
+        {
+            try
+            {
+                var result = _contractService.CreateContract(contract);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
+        [HttpDelete("delete")]
+        public IActionResult DeleteContract(ContractDTO contract)
+        {
+            try
+            {
+                var result = _contractService.DeleteContract(contract);
+                if (result)
+                {
+                    return Ok();
+                }
+                else
+                {
+                    return NotFound();
+                }
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
+
     }
 }

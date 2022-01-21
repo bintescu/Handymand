@@ -43,11 +43,17 @@ namespace Handymand
 
             services.AddTransient<IContractRepository, ContractRepository>();
             services.AddTransient<IUserRepository, UserRepository>();
+            services.AddTransient<ISkillRepository, SkillRepository>();
+            services.AddTransient<IContractsSkillsRepository, ContractsSkillsRepository>();
+            services.AddTransient<IClientRepository, ClientRepository>();
+            services.AddTransient<IFreelancerRepository, FreelancerRepository>();
+
+
             services.AddTransient<IContractService, ContractService>();
+            services.AddTransient<IUserService, UserService>();
+
 
             services.AddScoped<IJWTUtils, JWTUtils>();
-
-            services.AddScoped<IUserService, UserService>();
 
             services.Configure<AppSettings>(Configuration.GetSection("AppSettings"));
         

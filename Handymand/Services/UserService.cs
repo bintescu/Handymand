@@ -15,10 +15,16 @@ namespace Handymand.Services
 
         private IJWTUtils _jwtUtils;
 
-        public UserService(IUserRepository userRepository, IJWTUtils jWTUtils)
+        private IClientRepository _clientRepository;
+
+        private IFreelancerRepository _freelancerRepository;
+
+        public UserService(IUserRepository userRepository, IJWTUtils jWTUtils, IClientRepository clientRepository, IFreelancerRepository freelancerRepository)
         {
             _userRepository = userRepository;
             _jwtUtils = jWTUtils;
+            _clientRepository = clientRepository;
+            _freelancerRepository = freelancerRepository;
         }
 
 
@@ -61,6 +67,30 @@ namespace Handymand.Services
             _userRepository.Create(userToCreate);
 
             _userRepository.Save();
+
+            var clientToCreate = new Client()
+            {
+                IdUser = userToCreate.Id,
+                Location = user.Location,
+                Rating = "Nou venit"
+
+            };
+
+            _clientRepository.Create(clientToCreate);
+            _clientRepository.Save();
+
+            var freelancerToCreate = new Freelancer()
+            {
+                IdUser = userToCreate.Id,
+                Score = 0
+
+            };
+
+            _freelancerRepository.Create(freelancerToCreate);
+            _freelancerRepository.Save();
+
+
+            
             return userToCreate;
         }
 

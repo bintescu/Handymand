@@ -10,5 +10,14 @@ namespace Handymand.Services
     public interface IContractService
     {
         List<ContractDTO> AllAvailableContracts();
+
+        ContractDTO UpdateContract(ContractDTO contract);
+
+        ContractDTO CreateContract(ContractDTO contract);
+        ContractDTO ConvertToDTO(Contract contract);
+
+        Contract ConvertFromDTOforCreate(ContractDTO contract);
+
+        bool DeleteContract(ContractDTO contract);
     }
 }
