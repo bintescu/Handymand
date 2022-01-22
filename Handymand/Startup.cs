@@ -51,6 +51,7 @@ namespace Handymand
 
             services.AddTransient<IContractService, ContractService>();
             services.AddTransient<IUserService, UserService>();
+            services.AddTransient<ISkillService, SkillService>();
 
 
             services.AddScoped<IJWTUtils, JWTUtils>();

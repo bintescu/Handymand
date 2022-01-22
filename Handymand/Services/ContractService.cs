@@ -44,7 +44,7 @@ namespace Handymand.Services
             }
             else
             {
-                DTO.ExpirationDate = contract.DateCreated.Value.AddMonths(1);
+                DTO.ExpirationDate = contract.DateCreated.AddMonths(1);
             }
 
             DTO.CreationDate = contract.DateCreated;
@@ -84,7 +84,7 @@ namespace Handymand.Services
                     CreationUserFullName = i.CreationUser.LastName + " " + i.CreationUser.FirstName,
                     Description = i.Description,
                     CreationDate = i.DateCreated,
-                    ExpirationDate = i.DateCreated.HasValue ? i.DateCreated.Value.Date.AddMonths(1) : null,
+                    ExpirationDate = i.DateCreated.AddMonths(1),
                     ComplexityGrade = i.ComplexityGrade,
                     PaymentAmount = i.PaymentAmount,
                     ExpectedDurationInHours = i.ExpectedDurationInHours

@@ -89,6 +89,15 @@ namespace Handymand.Data
                 .HasOne<Skill>(cs => cs.Skill).WithMany(s => s.ContractSkills)
                 .HasForeignKey(cs => cs.IdSkill);
 
+
+            modelBuilder.Entity<Skill>(u =>
+            {
+                u.Property<DateTime>("DateCreated")
+                    .HasDefaultValueSql("GETDATE()");
+
+                u.Property<DateTime?>("DateModified")
+                    .HasComputedColumnSql("GETDATE()");
+            });
             base.OnModelCreating(modelBuilder);
         }
     }
