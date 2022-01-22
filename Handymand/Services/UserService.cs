@@ -27,6 +27,20 @@ namespace Handymand.Services
             _freelancerRepository = freelancerRepository;
         }
 
+        public UserDTO ConvertToDTOForCreate(User user)
+        {
+            UserDTO dto = new UserDTO();
+
+            dto.Id = user.Id;
+            dto.Email = user.Email;
+            dto.FirstName = user.FirstName;
+            dto.LastName = user.LastName;
+            dto.Username = user.Username;
+
+            return dto;
+
+        }
+
 
         public UserResponseDTO Authenticate(UserRequestDTO model)
         {
@@ -55,13 +69,18 @@ namespace Handymand.Services
             throw new NotImplementedException();
         }
 
-        public User CreateUser(UserRequestDTO user)
+
+        public UserDTO CreateUser(UserDTO user)
         {
             var userToCreate = new User()
             {
                 Username = user.Username,
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(user.Password),
-                Role = Role.User
+                Role = Role.User,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email
+
             };
 
             _userRepository.Create(userToCreate);
@@ -91,7 +110,7 @@ namespace Handymand.Services
 
 
             
-            return userToCreate;
+            return ConvertToDTOForCreate(userToCreate);
         }
 
         public User GetById(int Id)

@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace Handymand.Controllers
@@ -57,11 +59,17 @@ namespace Handymand.Controllers
             try
             {
                 var result = _contractService.CreateContract(contract);
-                return Ok();
+                return Ok(result);
             }
             catch (Exception e)
             {
-                throw new Exception(e.Message);
+                var resp = new HttpResponseMessage(HttpStatusCode.NotFound)
+                {
+                    Content = new StringContent(e.Message),
+                    ReasonPhrase = "Server Error"
+                };
+                throw new System.Web.Http.HttpResponseException(resp);
+
             }
         }
 
@@ -73,7 +81,7 @@ namespace Handymand.Controllers
                 var result = _contractService.DeleteContract(contract);
                 if (result)
                 {
-                    return Ok();
+                    return Ok(result);
                 }
                 else
                 {

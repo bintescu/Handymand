@@ -24,6 +24,7 @@ namespace Handymand.Models
 
         public Role Role { get; set; }
         //public ICollection<Feedback> SentFeedbacks { get; set; }
+        public ICollection<Contract> CreatedContracts { get; set; }
 
     }
 }

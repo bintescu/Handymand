@@ -20,7 +20,6 @@ namespace Handymand.Repository.DatabaseRepositories
         {
             return _table.Include(x => x.ContractSkills)
                 .Include(x => x.CreationUser)
-                .Include(x => x.CreationUser.User)
                 .ToList();
         }
 

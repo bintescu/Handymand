@@ -9,7 +9,7 @@ namespace Handymand.Models
     public class Contract: BaseEntity
     {
         public int IdCreationUser { get; set;}
-        public Client CreationUser { get; set;}
+        public User CreationUser { get; set;}
 
         public int? IdRefferedUser { get; set; }
 

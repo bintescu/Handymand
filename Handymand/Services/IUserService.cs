@@ -22,6 +22,8 @@ namespace Handymand.Services
 
         //Create
 
-        User CreateUser(UserRequestDTO user);
+        UserDTO CreateUser(UserDTO user);
+
+        UserDTO ConvertToDTOForCreate(User user);
     }
 }

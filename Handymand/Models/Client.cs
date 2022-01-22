@@ -15,7 +15,5 @@ namespace Handymand.Models
         public User User { get; set; }
 
         public int IdUser { get; set; }
-
-        public ICollection<Contract> CreatedContracts { get; set; }
     }
 }

@@ -81,7 +81,7 @@ namespace Handymand.Services
                 .Select(i => new ContractDTO()
                 {
                     Id = i.Id,
-                    CreationUserFullName = i.CreationUser.User.LastName + " " + i.CreationUser.User.FirstName,
+                    CreationUserFullName = i.CreationUser.LastName + " " + i.CreationUser.FirstName,
                     Description = i.Description,
                     CreationDate = i.DateCreated,
                     ExpirationDate = i.DateCreated.HasValue ? i.DateCreated.Value.Date.AddMonths(1) : null,
@@ -124,6 +124,7 @@ namespace Handymand.Services
 
             _contractRepository.Save();
 
+            if(contract.SkillsList != null && contract.SkillsList.Count() > 0)
             foreach(var skillId in contract.SkillsList)
             {
                 ContractsSkills Cskill = new ContractsSkills();

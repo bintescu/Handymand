@@ -37,7 +37,7 @@ namespace Handymand.Controllers
         }
 
         [HttpPost("create")]
-        public IActionResult Create(UserRequestDTO user)
+        public IActionResult Create(UserDTO user)
         {
             try
             {
