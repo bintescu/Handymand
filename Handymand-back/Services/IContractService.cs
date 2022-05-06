@@ -11,6 +11,8 @@ namespace Handymand.Services
     {
         List<ContractDTO> AllAvailableContracts();
 
+        List<ContractDTO> AllAvailableContractsForHomePage();
+
         ContractDTO UpdateContract(ContractDTO contract);
 
         ContractDTO CreateContract(ContractDTO contract);

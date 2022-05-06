@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\A AN FACULTATE 4\\Licenta\\Handymand-back\\Handymand-back\\Handymand.csproj": {}
+    "D:\\A AN FACULTATE 4\\SEM 1\\Licenta\\Handymand-back\\Handymand-back\\Handymand.csproj": {}
   },
   "projects": {
-    "D:\\A AN FACULTATE 4\\Licenta\\Handymand-back\\Handymand-back\\Handymand.csproj": {
+    "D:\\A AN FACULTATE 4\\SEM 1\\Licenta\\Handymand-back\\Handymand-back\\Handymand.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\A AN FACULTATE 4\\Licenta\\Handymand-back\\Handymand-back\\Handymand.csproj",
+        "projectUniqueName": "D:\\A AN FACULTATE 4\\SEM 1\\Licenta\\Handymand-back\\Handymand-back\\Handymand.csproj",
         "projectName": "Handymand",
-        "projectPath": "D:\\A AN FACULTATE 4\\Licenta\\Handymand-back\\Handymand-back\\Handymand.csproj",
+        "projectPath": "D:\\A AN FACULTATE 4\\SEM 1\\Licenta\\Handymand-back\\Handymand-back\\Handymand.csproj",
         "packagesPath": "C:\\Users\\Valhalla\\.nuget\\packages\\",
-        "outputPath": "D:\\A AN FACULTATE 4\\Licenta\\Handymand-back\\Handymand-back\\obj\\",
+        "outputPath": "D:\\A AN FACULTATE 4\\SEM 1\\Licenta\\Handymand-back\\Handymand-back\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Valhalla\\AppData\\Roaming\\NuGet\\NuGet.Config",

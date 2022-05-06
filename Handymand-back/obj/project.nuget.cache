@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "ySvPJrNFoU/w9fNgSnNhKkAxvWestQ492jpjWSVfRe5OV8X0HXuLlW2UuS29LmR4DNtP+maP0yOol1FhEohWvg==",
+  "dgSpecHash": "cNr5Q7/12IVWaoUfPqs55OXU5NkR+5/VY2dQY0ERhkwb3gYKRhS+zxdChB/OoFETH5ZC6wY8heAG/tv1oo8X6w==",
   "success": true,
-  "projectFilePath": "D:\\A AN FACULTATE 4\\Licenta\\Handymand-back\\Handymand-back\\Handymand.csproj",
+  "projectFilePath": "D:\\A AN FACULTATE 4\\SEM 1\\Licenta\\Handymand-back\\Handymand-back\\Handymand.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Valhalla\\.nuget\\packages\\bcrypt.net-core\\1.6.0\\bcrypt.net-core.1.6.0.nupkg.sha512",
     "C:\\Users\\Valhalla\\.nuget\\packages\\entityframework\\6.4.4\\entityframework.6.4.4.nupkg.sha512",

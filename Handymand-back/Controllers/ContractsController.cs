@@ -38,6 +38,22 @@ namespace Handymand.Controllers
 
         }
 
+        [HttpGet("allavailable/forhomepage")]
+        public IActionResult GetAllAvailableContractsForHomePage()
+        {
+            try
+            {
+                var result = _contractService.AllAvailableContractsForHomePage();
+                return Ok(result);
+
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+
+        }
+
         [HttpPut("update")]
         public IActionResult UpdateContract(ContractDTO contract)
         {

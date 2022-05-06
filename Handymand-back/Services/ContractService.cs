@@ -93,6 +93,26 @@ namespace Handymand.Services
             return result;
         }
 
+        public List<ContractDTO> AllAvailableContractsForHomePage()
+        {
+            var query = _contractRepository.GetAllWithInclude();
+
+            var result = query.Where(i => i.IdRefferedUser == null || i.IdRefferedUser == 0)
+                .Select(i => new ContractDTO()
+                {
+                    Id = i.Id,
+                    CreationUserFullName = i.CreationUser.LastName + " " + i.CreationUser.FirstName,
+                    Description = i.Description,
+                    CreationDate = i.DateCreated,
+                    ExpirationDate = i.DateCreated.AddMonths(1),
+                    ComplexityGrade = i.ComplexityGrade,
+                    PaymentAmount = i.PaymentAmount,
+                    ExpectedDurationInHours = i.ExpectedDurationInHours
+                }).Take(6).ToList();
+
+            return result;
+        }
+
         public ContractDTO UpdateContract(ContractDTO contract)
         {
             var forupdate = _contractRepository.GetById(contract.Id);
