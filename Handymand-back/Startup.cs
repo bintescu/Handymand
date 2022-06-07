@@ -53,8 +53,10 @@ namespace Handymand
             services.AddTransient<IContractsSkillsRepository, ContractsSkillsRepository>();
             services.AddTransient<IClientRepository, ClientRepository>();
             services.AddTransient<IFreelancerRepository, FreelancerRepository>();
+            services.AddTransient<IJobOfferRepository, JobOfferRepository>();
 
 
+            services.AddTransient<IJobOfferService, JobOfferService>();
             services.AddTransient<IContractService, ContractService>();
             services.AddTransient<IUserService, UserService>();
             services.AddTransient<ISkillService, SkillService>();

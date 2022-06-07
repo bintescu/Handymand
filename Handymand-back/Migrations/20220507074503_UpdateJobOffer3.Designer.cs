@@ -4,14 +4,16 @@ using Handymand.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Handymand.Migrations
 {
     [DbContext(typeof(HandymandContext))]
-    partial class HandymandContextModelSnapshot : ModelSnapshot
+    [Migration("20220507074503_UpdateJobOffer3")]
+    partial class UpdateJobOffer3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -178,9 +180,6 @@ namespace Handymand.Migrations
 
                     b.Property<double>("LowPriceRange")
                         .HasColumnType("float");
-
-                    b.Property<string>("Title")
-                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 

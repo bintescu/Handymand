@@ -1,0 +1,22 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace Handymand.Models.DTOs
+{
+    public class JobOfferDTO
+    {
+        public int? IdJobOffer { get; set; }
+        public int IdCreationUser { get; set; }
+        public string Email { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string Description { get; set; }
+        public string Location { get; set; }
+        public string Title { get; set; }
+        public double LowPriceRange { get; set; }
+        public double HighPriceRange { get; set; }
+        public DateTime DateCreated { get; set; }
+    }
+}
