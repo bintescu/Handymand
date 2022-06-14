@@ -84,7 +84,7 @@ namespace Handymand.Utilities.JWTUtils
                     return null;
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 throw;
             }

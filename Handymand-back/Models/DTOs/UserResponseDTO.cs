@@ -12,6 +12,7 @@ namespace Handymand.Models.DTOs
         public string LastName { get; set; }
         public string Username { get; set; }
         public string Token { get; set; }
+        public int Role { get; set; }
 
         public UserResponseDTO(User user, string token)
         {
@@ -19,6 +20,7 @@ namespace Handymand.Models.DTOs
             FirstName = user.FirstName;
             LastName = user.LastName;
             Username = user.Username;
+            Role = (int)user.Role;
             Token = token;
         }
     }

@@ -64,9 +64,9 @@ namespace Handymand.Services
             }
         }
 
-        public IEnumerable<User> GetAllUsers()
+        public async Task<IEnumerable<User>> GetAllUsers()
         {
-            throw new NotImplementedException();
+            return await _userRepository.GetAll();
         }
 
 
@@ -115,7 +115,7 @@ namespace Handymand.Services
 
         public User GetById(int Id)
         {
-            throw new NotImplementedException();
+            return _userRepository.GetById(Id);
         }
     }
 }

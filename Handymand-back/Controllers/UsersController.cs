@@ -56,11 +56,11 @@ namespace Handymand.Controllers
 
         [Authorization(Role.Admin)]
         [HttpGet]
-        public IActionResult GetAllUsers()
+        public async Task<IActionResult> GetAllUsers()
         {
             try
             {
-                var users = _userService.GetAllUsers();
+                var users = await _userService.GetAllUsers();
 
                 return Ok(users);
 

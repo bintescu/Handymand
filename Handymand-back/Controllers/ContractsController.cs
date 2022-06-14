@@ -1,5 +1,7 @@
-﻿using Handymand.Models.DTOs;
+﻿using Handymand.Models;
+using Handymand.Models.DTOs;
 using Handymand.Services;
+using Handymand.Utilities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -22,6 +24,7 @@ namespace Handymand.Controllers
             _contractService = contractService;
         }
 
+        [Authorization(Role.User)]
         [HttpGet("allavailable")]
         public IActionResult GetAllAvailableContracts()
         {

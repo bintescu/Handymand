@@ -20,13 +20,17 @@ namespace Handymand.Utilities
         public async Task Invoke(HttpContext httpContext, IUserService userService, IJWTUtils jWTUtils)
         {
             //Bearer -token-
-            var token = httpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split("").Last();
+            var token = httpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
 
-            var userId = jWTUtils.ValidateJWTToken(token);
-
-            if(userId != null)
+            if(token != null && token.Equals("null") == false)
             {
-                httpContext.Items["User"] = userService.GetById((int)userId);
+                var userId = jWTUtils.ValidateJWTToken(token);
+
+                if (userId != null)
+                {
+                    httpContext.Items["User"] = userService.GetById((int)userId);
+                }
+
             }
 
             await _next(httpContext);

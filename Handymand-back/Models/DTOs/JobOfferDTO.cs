@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -18,5 +19,19 @@ namespace Handymand.Models.DTOs
         public double LowPriceRange { get; set; }
         public double HighPriceRange { get; set; }
         public DateTime DateCreated { get; set; }
+        public List<IFormFile> Files { get; set; }
+
+        public override string ToString()
+        {
+            return "IdJobOffer :" + IdJobOffer + " ," +
+                "IdCreationUser :" + IdCreationUser + " ," +
+                "Email :" + Email + " ," +
+                "Description :" + Description + " ," +
+                "Location :" + Location + " ," +
+                "Title :" + Title + " ," +
+                "LowPriceRange :" + LowPriceRange + " ," +
+                "HighPriceRange :" + HighPriceRange + " ," +
+                "Files :" + Files;
+        }
     }
 }

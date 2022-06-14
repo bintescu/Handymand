@@ -1,10 +1,12 @@
-﻿using Handymand.Models.DTOs;
+﻿using Handymand.Models;
+using Handymand.Models.DTOs;
 using Handymand.Services;
 using Handymand.Utilities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -44,24 +46,118 @@ namespace Handymand.Controllers
 
         }
 
+        [Authorization(Role.User,Role.Admin)]
         [HttpPost("create")]
-        public IActionResult CreateJobOffer(JobOfferDTO jobOffer)
+        public async Task<IActionResult> CreateJobOffer([FromForm] JobOfferDTO jobOffer)
         {
             try
             {
-                var result = _jobOfferService.Create(jobOffer);
+                var result = await _jobOfferService.Create(jobOffer);
                 return Ok(result);
             }
             catch (Exception e)
             {
                 var resp = new HttpResponseMessage(HttpStatusCode.NotFound)
                 {
-                    Content = new StringContent(e.Message),
-                    ReasonPhrase = "Server Error"
+                    Content = new StringContent(jobOffer.ToString()),
+                    ReasonPhrase = e.Message
                 };
-                throw new System.Web.Http.HttpResponseException(resp);
+                //throw new System.Web.Http.HttpResponseException(resp);
+                return StatusCode(500, resp);
 
             }
+        }
+
+
+        // Async docs
+        //https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/concepts/async/
+        //https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/operators/await
+        //https://angular.io/guide/forms
+        [HttpPost("testasyncpost")]
+        public async Task<IActionResult> TestAsyncPost([FromForm] string testString)
+        {
+            if(testString is null)
+            {
+                return null;
+            }
+
+            string result = await _jobOfferService.TestAsyncMethod(testString);
+            return Ok(result);
+        }
+
+        [HttpPost("testasyncpost2")]
+        public async Task<IActionResult> TestAsyncPost2([FromForm] string testString)
+        {
+            if (testString is null)
+            {
+                return null;
+            }
+
+            string result = await _jobOfferService.TestAsyncMethod2(testString);
+            return Ok(result);
+        }
+
+        [HttpPost("testasyncpost3")]
+        public async Task<IActionResult> TestAsyncPost3([FromForm] string testString)
+        {
+            if (testString is null)
+            {
+                return null;
+            }
+
+            string result = await _jobOfferService.TestAsyncMethod3(testString);
+            return Ok(result);
+        }
+
+        //Poti sa pui in documentatie si asta:
+        //https://www.youtube.com/watch?v=5a6WCBftjvw
+        [HttpPost("uploadfilesasync")]
+        public async Task<IActionResult> OnPostUploadAsync(List<IFormFile> files)
+        {
+            long size = files.Sum(f => f.Length);
+
+            foreach (var formFile in files)
+            {
+                if (formFile.Length > 0)
+                {
+                    var filePath = Path.GetTempFileName();
+
+                    using (var stream = System.IO.File.Create(filePath))
+                    {
+                        await formFile.CopyToAsync(stream);
+                    }
+
+                }
+            }
+
+            // Process uploaded files
+            // Don't rely on or trust the FileName property without validation.
+
+            return Ok(new { count = files.Count, size });
+        }
+
+        public class Example
+        {
+            public List<IFormFile> files { get; set; }
+        }
+        [HttpPost("uploadfiles")]
+        public IActionResult OnPostUpload([FromForm] Example dto)
+        {
+            long size = dto.files.Sum(f => f.Length);
+
+            foreach (var formFile in dto.files)
+            {
+                if (formFile.Length > 0)
+                {
+                    var filePath = Path.GetTempFileName();
+
+                }
+            }
+
+            // Process uploaded files
+            // Don't rely on or trust the FileName property without validation.
+
+            return Ok(new { count = dto.files.Count, size });
         }
 
         [HttpPost("getById")]

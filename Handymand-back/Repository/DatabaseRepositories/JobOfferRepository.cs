@@ -20,7 +20,7 @@ namespace Handymand.Repository.DatabaseRepositories
         {
             var result = _table.Where(j => j.Id == Id).FirstOrDefault();
 
-            if(result.CreationUserId != null)
+            if(result != null && result.CreationUserId != null)
             {
                 result.CreationUser = _context.Users.Where(i => i.Id == result.CreationUserId).FirstOrDefault();
             }

@@ -14,7 +14,7 @@ namespace Handymand.Services
         UserResponseDTO Authenticate(UserRequestDTO model);
 
         //GetAll
-        IEnumerable<User> GetAllUsers();
+        Task<IEnumerable<User>> GetAllUsers();
 
         //GetById
 
