@@ -97,7 +97,7 @@ namespace Handymand.Repository.GenericRepository
                 return _context.SaveChanges() > 0;
 
             }
-            catch (SqlException ex)
+            catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }
@@ -111,7 +111,7 @@ namespace Handymand.Repository.GenericRepository
                 return await _context.SaveChangesAsync() > 0;
 
             }
-            catch (SqlException ex)
+            catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }

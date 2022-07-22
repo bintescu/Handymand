@@ -1,4 +1,5 @@
 ﻿using Handymand.Models;
+using Handymand.Models.DTOs;
 using Handymand.Repository.GenericRepository;
 using System;
 using System.Collections.Generic;
@@ -9,12 +10,14 @@ namespace Handymand.Repository.DatabaseRepositories
 {
     public interface IUserRepository: IGenericRepository<User>
     {
-        User GetById(int Id);
+        Task<User> GetById(int Id);
 
         User GetByIdIncludingAll(int Id);
 
         List<User> GetAllWithInclude();
 
-        User GetByEmail(string email);
+        Task<User> GetByEmail(string email);
+
+       // Task<User> UpdateUser(User userForUpdate, User newVariant);
     }
 }

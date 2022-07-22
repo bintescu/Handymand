@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace Handymand.Utilities
@@ -24,12 +25,20 @@ namespace Handymand.Utilities
 
             if(token != null && token.Equals("null") == false)
             {
-                var userId = jWTUtils.ValidateJWTToken(token);
+
+                var validatedToken = jWTUtils.ValidateJWTToken2(token);
+
+                var userIdentity = new ClaimsIdentity(validatedToken.Claims);
+
+                var userPrincipal = new ClaimsPrincipal(userIdentity);
+
+                httpContext.User = userPrincipal;
+/*                var userId = jWTUtils.ValidateJWTToken(token);
 
                 if (userId != null)
                 {
                     httpContext.Items["User"] = userService.GetById((int)userId);
-                }
+                }*/
 
             }
 

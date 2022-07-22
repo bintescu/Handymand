@@ -21,7 +21,7 @@ namespace Handymand.Utilities.JWTUtils
         }
 
 
-        public string GenerateJWTToken(User user)
+        public async Task<string> GenerateJWTToken(User user)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
 
@@ -32,10 +32,11 @@ namespace Handymand.Utilities.JWTUtils
                 Subject = new ClaimsIdentity(new[]
                 {
                     new Claim("id", user.Id.ToString()),
+                    new Claim("role", ((int)user.Role).ToString())
 
                 }),
 
-                Expires = DateTime.UtcNow.AddDays(10),
+                Expires = DateTime.UtcNow.AddDays(2),
                 
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(appPrivateKey), SecurityAlgorithms.HmacSha256Signature)
 
@@ -43,7 +44,13 @@ namespace Handymand.Utilities.JWTUtils
 
             var token = tokenHandler.CreateToken(tokenDescriptor);
 
-            return tokenHandler.WriteToken(token);
+            string result = null;
+            await Task.Run(() => result = tokenHandler.WriteToken(token));
+
+
+            
+
+            return result;
 
 
         }
@@ -83,6 +90,40 @@ namespace Handymand.Utilities.JWTUtils
                 {
                     return null;
                 }
+            }
+            catch (Exception e)
+            {
+                throw;
+            }
+
+        }
+
+        public JwtSecurityToken ValidateJWTToken2(string token)
+        {
+            if (token == null)
+            {
+                return null;
+            }
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+
+            var appPrivateKey = Encoding.ASCII.GetBytes(_appSettings.JwtSecret);
+
+            var tokenValidationParams = new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(appPrivateKey),
+                ValidateIssuer = false,
+                ValidateAudience = false,
+                ClockSkew = TimeSpan.Zero
+            };
+
+            try
+            {
+                tokenHandler.ValidateToken(token, tokenValidationParams, out SecurityToken validatedToken);
+                var jwtToken = (JwtSecurityToken)validatedToken;
+
+                return jwtToken;
             }
             catch (Exception e)
             {

@@ -2,6 +2,7 @@
 using Handymand.Models.DTOs;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -11,19 +12,28 @@ namespace Handymand.Services
     {
         //Auth
 
-        UserResponseDTO Authenticate(UserRequestDTO model);
+        Task<ServiceResponse<UserResponseDTO>> Authenticate(UserRequestDTO model);
 
         //GetAll
         Task<IEnumerable<User>> GetAllUsers();
 
         //GetById
 
-        User GetById(int Id);
+        Task<ServiceResponse<UserDTO>> GetById(int Id);
+
+        Task<ServiceResponse<MyUserDTO>> GetMyUser(int Id);
+
+        Task<ServiceResponse<byte[]>> GetMyUserProfileImage(int Id);
 
         //Create
 
-        UserDTO CreateUser(UserDTO user);
+        Task<UserDTO> CreateUser(UserDTO user);
 
         UserDTO ConvertToDTOForCreate(User user);
+
+        //Update
+        Task<ServiceResponse<MyUserDTO>> UpdateUser(UpdateUserDTO dto);
+
+
     }
 }

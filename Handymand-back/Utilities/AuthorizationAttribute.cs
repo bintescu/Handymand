@@ -21,17 +21,42 @@ namespace Handymand.Utilities
         public void OnAuthorization(AuthorizationFilterContext context)
         {
             var unauthorizedStatusCodeObject = new JsonResult(new { Message = "Unauthorized" }) { StatusCode = StatusCodes.Status401Unauthorized };
-            
-            if(_roles == null)
+
+            //In Functie de rolurile definite in aplicatie
+            //Verificam daca rolurile primite ca parametru la acest atribut exista
+            //Daca este sunt null atunci intoarce unauthorized.
+            if (_roles == null)
             {
                 context.Result = unauthorizedStatusCodeObject;
             }
 
-            var user = (User)context.HttpContext.Items["User"];
+            /*            var user = (User)context.HttpContext.Items["User"];
 
-            if(user == null || !_roles.Contains(user.Role))
+                        if (user == null || !_roles.Contains(user.Role))
+                        {
+                            context.Result = unauthorizedStatusCodeObject;
+                        }*/
+
+            var user = context.HttpContext.User;
+
+            if(user != null)
             {
-                context.Result = unauthorizedStatusCodeObject;
+                var userRole = user.FindFirst("role");
+
+                if(userRole != null)
+                {
+                    try
+                    {
+                        if (!_roles.Contains((Role)Convert.ToInt32(userRole.Value)))
+                        {
+                            context.Result = unauthorizedStatusCodeObject;
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        context.Result = unauthorizedStatusCodeObject;
+                    }
+                }
             }
         }
     }

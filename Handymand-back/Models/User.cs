@@ -13,8 +13,13 @@ namespace Handymand.Models
         public string Email { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
-        public string WalletAddres { get; set; }
+        public string WalletAddress { get; set; }
         public decimal Amount { get; set; } 
+        public string AboutMe { get; set; }
+        public string Address { get; set; }
+        public string Phone { get; set; }
+        public string Title { get; set; }
+        public DateTime? Birthday { get; set; }
 
         public Client ClientAccount { get; set; }
         public Freelancer FreelancerAccount { get; set; }

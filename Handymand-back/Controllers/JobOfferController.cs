@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace Handymand.Controllers
@@ -48,22 +49,36 @@ namespace Handymand.Controllers
 
         [Authorization(Role.User,Role.Admin)]
         [HttpPost("create")]
-        public async Task<IActionResult> CreateJobOffer([FromForm] JobOfferDTO jobOffer)
+        public async Task<ActionResult<ServiceResponse<JobOfferDTO>>> CreateJobOffer([FromForm] JobOfferDTO jobOffer)
         {
+            var result = new ServiceResponse<JobOfferDTO>();
             try
             {
-                var result = await _jobOfferService.Create(jobOffer);
-                return Ok(result);
+                int id = Convert.ToInt32(HttpContext.User.FindFirstValue("id"));
+                if (id == 0)
+                {
+                    return BadRequest("User with that id doesn`t exist!");
+                }
+                else
+                {
+
+                    jobOffer.IdCreationUser = id;
+                    result = await _jobOfferService.Create(jobOffer);
+                    if(result.Success == true)
+                    {
+                        return Ok(result);
+                    }
+                    else
+                    {
+                        return BadRequest(result);
+                    }
+                }
             }
             catch (Exception e)
             {
-                var resp = new HttpResponseMessage(HttpStatusCode.NotFound)
-                {
-                    Content = new StringContent(jobOffer.ToString()),
-                    ReasonPhrase = e.Message
-                };
-                //throw new System.Web.Http.HttpResponseException(resp);
-                return StatusCode(500, resp);
+                result.Message = e.Message;
+                result.Success = false;
+                return result;
 
             }
         }
@@ -85,29 +100,6 @@ namespace Handymand.Controllers
             return Ok(result);
         }
 
-        [HttpPost("testasyncpost2")]
-        public async Task<IActionResult> TestAsyncPost2([FromForm] string testString)
-        {
-            if (testString is null)
-            {
-                return null;
-            }
-
-            string result = await _jobOfferService.TestAsyncMethod2(testString);
-            return Ok(result);
-        }
-
-        [HttpPost("testasyncpost3")]
-        public async Task<IActionResult> TestAsyncPost3([FromForm] string testString)
-        {
-            if (testString is null)
-            {
-                return null;
-            }
-
-            string result = await _jobOfferService.TestAsyncMethod3(testString);
-            return Ok(result);
-        }
 
         //Poti sa pui in documentatie si asta:
         //https://www.youtube.com/watch?v=5a6WCBftjvw

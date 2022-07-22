@@ -12,13 +12,11 @@ namespace Handymand.Services
     {
         public List<JobOfferDTO> AllJobOffers();
 
-        public Task<JobOfferDTO> Create(JobOfferDTO dto);
+        public Task<ServiceResponse<JobOfferDTO>> Create(JobOfferDTO dto);
 
         public JobOfferDTO GetById(int Id);
 
         public Task<string> TestAsyncMethod(string fileName);
-        public Task<string> TestAsyncMethod2(string fileName);
-        public Task<string> TestAsyncMethod3(string fileName);
         public Task SaveJobOffersImages(List<IFormFile> files, int N);
 
     }

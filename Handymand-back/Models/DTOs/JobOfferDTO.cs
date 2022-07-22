@@ -9,7 +9,7 @@ namespace Handymand.Models.DTOs
     public class JobOfferDTO
     {
         public int? IdJobOffer { get; set; }
-        public int IdCreationUser { get; set; }
+        public int? IdCreationUser { get; set; }
         public string Email { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }

@@ -23,9 +23,9 @@ namespace Handymand.Repository.DatabaseRepositories
                 .ToList();
         }
 
-        public User GetById(int Id)
+        public async Task<User> GetById(int Id)
         {
-            return _table.Where(i => i.Id == Id).FirstOrDefault();
+            return await _table.Where(i => i.Id == Id).FirstOrDefaultAsync();
         }
 
         public User GetByIdIncludingAll(int Id)
@@ -36,9 +36,9 @@ namespace Handymand.Repository.DatabaseRepositories
 
         }
 
-        public User GetByEmail(string email)
+        public async Task<User> GetByEmail(string email)
         {
-            return _table.Where(i => String.Equals(i.Email, email)).FirstOrDefault();
+            return await _table.FirstOrDefaultAsync(x => x.Email.ToLower().Equals(email.ToLower()));
         }
     }
 }

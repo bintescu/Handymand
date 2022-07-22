@@ -26,13 +26,12 @@ namespace Handymand.Services
         {
             JobOffer jobOffer = new JobOffer();
 
-            jobOffer.CreationUser = _userRepository.FindById(dto.IdCreationUser);
-            jobOffer.DateCreated = dto.DateCreated;
             jobOffer.Description = dto.Description;
             jobOffer.Location = dto.Location;
             jobOffer.LowPriceRange = dto.LowPriceRange;
             jobOffer.HighPriceRange = dto.HighPriceRange;
             jobOffer.Title = dto.Title;
+            jobOffer.CreationUserId = dto.IdCreationUser;
 
             return jobOffer;
         }
@@ -65,6 +64,7 @@ namespace Handymand.Services
             var result = initialQuery.Select(i => new JobOfferDTO() 
             {
                 IdJobOffer = i.Id,
+                IdCreationUser = i.CreationUserId,
                 FirstName = i.CreationUser != null ? i.CreationUser.FirstName : null,
                 LastName = i.CreationUser != null ? i.CreationUser.LastName : null,
                 Email = i.CreationUser != null ? i.CreationUser.Email : null,
@@ -79,28 +79,39 @@ namespace Handymand.Services
             return result;
         }
 
-        public async Task<JobOfferDTO> Create(JobOfferDTO dto)
+        public async Task<ServiceResponse<JobOfferDTO>> Create(JobOfferDTO dto)
         {
-            dto.DateCreated = DateTime.Now;
-            JobOffer jobOffer = ConvertFromDTO(dto);
+            var response = new ServiceResponse<JobOfferDTO>();
 
-            _jobOfferRepository.Create(jobOffer);
-            _jobOfferRepository.Save();
+            JobOffer jobOffer = ConvertFromDTO(dto);
+            jobOffer.DateCreated = DateTime.Now;
+
+            await _jobOfferRepository.CreateAsync(jobOffer);
+            await _jobOfferRepository.SaveAsync();
 
             if(jobOffer.Id != 0)
             {
-                try
+                response.Data = ConvertToDTO(jobOffer);
+                if(dto.Files != null)
                 {
-                    await SaveJobOffersImages(dto.Files, jobOffer.Id);
+                    try
+                    {
+                        await SaveJobOffersImages(dto.Files, jobOffer.Id);
+                    }
+                    catch (Exception e)
+                    {
+                        response.Message = e.Message;
+                    }
                 }
-                catch(Exception e)
-                {
 
-                }
 
             }
+            else
+            {
+                response.Success = false;
+            }
 
-            return ConvertToDTO(jobOffer);
+            return response;
         }
 
         public async Task SaveJobOffersImages(List<IFormFile> files, int Id)
@@ -142,32 +153,6 @@ namespace Handymand.Services
 
             await Task.Run(() => {
                 Thread.Sleep(2000);
-                result += " executed! ";
-            });
-
-            result += " afterExec ";
-            return result;
-        }
-
-        public async Task<string> TestAsyncMethod2(string fileName)
-        {
-            string result = fileName;
-
-            await Task.Run(() => {
-                Thread.Sleep(4000);
-                result += " executed! ";
-            });
-
-            result += " afterExec ";
-            return result;
-        }
-
-        public async Task<string> TestAsyncMethod3(string fileName)
-        {
-            string result = fileName;
-
-            await Task.Run(() => {
-                Thread.Sleep(7000);
                 result += " executed! ";
             });
 
