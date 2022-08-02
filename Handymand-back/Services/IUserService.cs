@@ -15,7 +15,7 @@ namespace Handymand.Services
         Task<ServiceResponse<UserResponseDTO>> Authenticate(UserRequestDTO model);
 
         //GetAll
-        Task<IEnumerable<User>> GetAllUsers();
+        Task<List<UserDTO>> GetAllUsers();
 
         //GetById
 
@@ -27,12 +27,18 @@ namespace Handymand.Services
 
         //Create
 
-        Task<UserDTO> CreateUser(UserDTO user);
+        Task CreateUser(UserDTO user);
 
         UserDTO ConvertToDTOForCreate(User user);
 
         //Update
         Task<ServiceResponse<MyUserDTO>> UpdateUser(UpdateUserDTO dto);
+
+        //Crypt and Decrypt
+
+        string DecryptStringAES(string encryptedValue);
+        string EncryptString(string key, string plainText);
+
 
 
     }

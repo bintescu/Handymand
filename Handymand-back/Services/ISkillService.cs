@@ -9,13 +9,14 @@ namespace Handymand.Services
 {
     public interface ISkillService
     {
-        SkillDTO ConvertToDTO(Skill skill);
-        Skill ConvertFromDTOForCreate(SkillDTO skill);
 
-        SkillDTO Create(SkillDTO skill);
+        Task<bool> Create(SkillDTO skill);
+        Task<bool> Update(SkillDTO skill);
+        Task<bool> Delete(SkillDTO skill);
 
-        IEnumerable<SkillDTO> GetAll();
-        SkillDTO Update(SkillDTO skill);
-        SkillDTO Delete(SkillDTO skill);
+
+        Task<List<SkillDTO>> GetAll();
+
+
     }
 }

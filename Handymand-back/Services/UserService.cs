@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
+using System.Security.Cryptography;
 
 namespace Handymand.Services
 {
@@ -67,6 +68,28 @@ namespace Handymand.Services
             return dto;
         }
 
+        public UserDTO ConvertToDTOForAdminGetUser(User user)
+        {
+            UserDTO dto = new UserDTO();
+            dto.Id = user.Id;
+            dto.Email = user.Email;
+            dto.FirstName = user.FirstName;
+            dto.LastName = user.LastName;
+            dto.Username = user.Username;
+            dto.Email = user.Email;
+            dto.Address = user.Address;
+            dto.AboutMe = user.AboutMe;
+            dto.Phone = user.Phone;
+            dto.Title = user.Title;
+            dto.WalletAddress = user.WalletAddress;
+            dto.DateCreated = user.DateCreated;
+            dto.Birthday = user.Birthday;
+            dto.Amount = user.Amount;
+            dto.Blocked = user.Blocked;
+
+            return dto;
+        }
+
         public MyUserDTO ConvertToDTOForGetMyUser(User user)
         {
             MyUserDTO dto = new MyUserDTO();
@@ -94,12 +117,17 @@ namespace Handymand.Services
             if(user == null)
             {
                 response.Success = false;
-                response.Message = "User not found.";
+                response.Message = "Wrong password or email!";
             }
             else if(!BCrypt.Net.BCrypt.Verify(model.Password, user.PasswordHash))
             {
                 response.Success = false;
                 response.Message = "Wrong password or email!";
+            }
+            else if(user.Blocked == true)
+            {
+                response.Success = false;
+                response.Message = "This user is blocked!";
             }
             else
             {
@@ -114,14 +142,36 @@ namespace Handymand.Services
             return response;
         }
 
-        public async Task<IEnumerable<User>> GetAllUsers()
+        public async Task<List<UserDTO>> GetAllUsers()
         {
-            return await _userRepository.GetAll();
+            var userList =  await _userRepository.GetAll();
+
+            var response = new List<UserDTO>();
+
+            await Task.Run(() =>
+            {
+                foreach (var user in userList)
+                {
+                    var dto = ConvertToDTOForAdminGetUser(user);
+                    response.Add(dto);
+                }
+
+            });
+
+            return response;
+
         }
 
 
-        public async Task<UserDTO> CreateUser(UserDTO user)
+        public async Task CreateUser(UserDTO user)
         {
+
+            var response = await _userRepository.GetByEmail(user.Email);
+            if(response != null)
+            {
+                throw new Exception("A user with this email already exists. Use a different email.");
+            }
+
             const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
             string walletAdd =  new string(Enumerable.Repeat(chars, 12)
                 .Select(s => s[random.Next(s.Length)]).ToArray());
@@ -168,10 +218,6 @@ namespace Handymand.Services
 
             await _freelancerRepository.CreateAsync(freelancerToCreate);
             await _freelancerRepository.SaveAsync();
-
-
-            
-            return ConvertToDTOForCreate(userToCreate);
         }
 
         public async Task<ServiceResponse<UserDTO>> GetById(int Id)
@@ -335,5 +381,100 @@ namespace Handymand.Services
 
         }
 
+
+        public string DecryptStringAES(string encryptedValue)
+        {
+            var keybytes = Encoding.UTF8.GetBytes("7061737323313233");
+            var iv = Encoding.UTF8.GetBytes("7061737323313233");
+
+            //DECRYPT FROM CRIPTOJS
+            var encrypted = Convert.FromBase64String(encryptedValue);
+            var decriptedFromJavascript = DecryptStringFromBytes(encrypted, keybytes, iv);
+
+            return decriptedFromJavascript;
+        }
+
+        private string DecryptStringFromBytes(byte[] cipherText, byte[] key, byte[] iv)
+        {
+            // Check arguments.
+            if (cipherText == null || cipherText.Length <= 0)
+            {
+                throw new ArgumentNullException("cipherText");
+            }
+            if (key == null || key.Length <= 0)
+            {
+                throw new ArgumentNullException("key");
+            }
+            if (iv == null || iv.Length <= 0)
+            {
+                throw new ArgumentNullException("key");
+            }
+
+            // Declare the string used to hold
+            // the decrypted text.
+            string plaintext = null;
+
+            // Create an RijndaelManaged object
+            // with the specified key and IV.
+            using (var rijAlg = new RijndaelManaged())
+            {
+                //Settings
+                rijAlg.Mode = CipherMode.CBC;
+                rijAlg.Padding = PaddingMode.PKCS7;
+                rijAlg.FeedbackSize = 128;
+
+                rijAlg.Key = key;
+                rijAlg.IV = iv;
+
+                // Create a decrytor to perform the stream transform.
+                var decryptor = rijAlg.CreateDecryptor(rijAlg.Key, rijAlg.IV);
+
+                // Create the streams used for decryption.
+                using (var msDecrypt = new MemoryStream(cipherText))
+                {
+                    using (var csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
+                    {
+                        using (var srDecrypt = new StreamReader(csDecrypt))
+                        {
+                            // Read the decrypted bytes from the decrypting stream
+                            // and place them in a string.
+                            plaintext = srDecrypt.ReadToEnd();
+                        }
+                    }
+                }
+            }
+
+            return plaintext;
+        }
+        public string EncryptString(string key, string plainText)
+        {
+            byte[] iv = new byte[16];
+            byte[] array;
+
+            using (Aes aes = Aes.Create())
+            {
+                aes.Key = Encoding.UTF8.GetBytes(key);
+                aes.IV = iv;
+                aes.Padding = PaddingMode.PKCS7;
+                aes.Mode = CipherMode.CBC;
+
+                ICryptoTransform encryptor = aes.CreateEncryptor(aes.Key, aes.IV);
+
+                using (MemoryStream memoryStream = new MemoryStream())
+                {
+                    using (CryptoStream cryptoStream = new CryptoStream((Stream)memoryStream, encryptor, CryptoStreamMode.Write))
+                    {
+                        using (StreamWriter streamWriter = new StreamWriter((Stream)cryptoStream))
+                        {
+                            streamWriter.Write(plainText);
+                        }
+
+                        array = memoryStream.ToArray();
+                    }
+                }
+            }
+
+            return Convert.ToBase64String(array);
+        }
     }
 }

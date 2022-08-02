@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Handymand.Services
 {
-    public class SkillService: ISkillService
+    public class SkillService : ISkillService
     {
         private readonly ISkillRepository _skillRepository;
 
@@ -17,99 +17,132 @@ namespace Handymand.Services
             _skillRepository = skillRepository;
         }
 
-        public SkillDTO ConvertToDTO(Skill skill)
+        private SkillDTO ConvertToDTOforAdminTable(Skill skill)
         {
             SkillDTO dto = new SkillDTO();
-            dto.SkillName = skill.SkillName;
             dto.Id = skill.Id;
-
+            dto.SkillName = skill.SkillName;
+            dto.CreationUserEmail = skill.CreationUser.Email;
+            dto.CreationUserName = skill.CreationUser.LastName + " " + skill.CreationUser.FirstName;
+            dto.ModificationUserEmail = skill.ModificationUser != null ? skill.ModificationUser.Email : null;
+            dto.ModificationuserName = skill.ModificationUser != null ? skill.ModificationUser.LastName + " " + skill.ModificationUser.FirstName : null;
+            dto.Description = skill.Description;
+            dto.DateCreated = skill.DateCreated.ToString("MM/dd/yyyy HH:mm");
+            dto.DateModified = skill.DateModified != null ? ((DateTime)skill.DateModified).ToString("MM/dd/yyyy HH:mm") : null;
             return dto;
         }
 
-        public Skill ConvertFromDTOForCreate(SkillDTO skill)
+        private Skill ConvertFromDTOForCreate(SkillDTO skill)
         {
             Skill item = new Skill();
             item.SkillName = skill.SkillName;
+            item.Description = skill.Description;
+            item.CreationUserId = skill.CreationUserId;
+
             item.DateCreated = DateTime.Now;
 
             return item;
         }
 
-        public SkillDTO Create(SkillDTO skill)
+        public async Task<bool> Create(SkillDTO skill)
         {
+            var alreadyExist = await _skillRepository.FindByNameAsync(skill.SkillName);
+
+            if (alreadyExist != null)
+            {
+                throw new Exception("A skill with this name already exists. Use a different name!");
+            }
+
+
             var forCreate = ConvertFromDTOForCreate(skill);
 
-            _skillRepository.Create(forCreate);
-            _skillRepository.Save();
+            await _skillRepository.CreateAsync(forCreate);
+            return await _skillRepository.SaveAsync();
 
-            return ConvertToDTO(forCreate);
+
         }
 
-        public SkillDTO Update(SkillDTO skill) 
+        public async Task<bool> Update(SkillDTO skill)
         {
-            if(skill.Id != null && skill.Id != 0)
+            if (skill.Id == null || skill.Id == 0)
             {
-                var forUpdate = _skillRepository.FindById((int)skill.Id);
+                throw new Exception("Can not update a skill with id null or 0!");
+            }
 
-                if (forUpdate != null)
-                {
+            var existingSkill = await _skillRepository.FindByIdAsync((int)skill.Id);
 
-                    forUpdate.SkillName = skill.SkillName;
-                    forUpdate.DateModified = DateTime.Now;
+            if (existingSkill == null)
+            {
+                throw new Exception("There is no skill with this id!");
+            }
 
-                    _skillRepository.Update(forUpdate);
-                    _skillRepository.Save();
-
-                    return ConvertToDTO(forUpdate);
-                }
-                else
-                {
-                    throw new Exception("UPDATE : There is no skill with Id :" + skill.Id);
-                }
+            if(skill.SkillName == null && skill.Description == null)
+            {
+                throw new Exception("Skill can not be updated with null SkillName or Description!");
             }
             else
             {
-                throw new Exception("UPDATE: The received skill for update have null Id");
+                if (skill.SkillName != null)
+                {
+                    skill.SkillName = skill.SkillName.Trim();
+                }
+
+                if (skill.Description != null)
+                {
+                    skill.Description = skill.Description.Trim();
+                }
             }
+
+
+            if ( skill.SkillName == "" &&  skill.Description == "")
+            {
+                throw new Exception("Skill can not be updated with empty SkillName or Description!");
+            }
+
+
+            existingSkill.SkillName = skill.SkillName;
+            existingSkill.DateModified = DateTime.Now;
+            existingSkill.Description = skill.Description;
+            existingSkill.ModificationUserId = skill.ModificationUserId;
+
+            _skillRepository.Update(existingSkill);
+            return await _skillRepository.SaveAsync();
+        }
+
+        public async Task<bool> Delete(SkillDTO skill)
+        {
+            if (skill.Id == null || skill.Id == 0)
+            {
+                throw new Exception("Can not delete a skill with id null or 0!");
+            }
+
+
+            var existingSkill = await _skillRepository.FindByIdAsync((int)skill.Id);
+
+            if (existingSkill == null)
+            {
+                throw new Exception("There is no skill with this id!");
+            }
+
+
+            _skillRepository.Delete(existingSkill);
+
+            return await _skillRepository.SaveAsync();
+
+
 
         }
 
-        public SkillDTO Delete(SkillDTO skill)
+
+        public async Task<List<SkillDTO>> GetAll()
         {
-            if(skill.Id != null && skill.Id != 0)
-            {
-                var forDelete = _skillRepository.FindById((int)skill.Id);
-
-                if(forDelete != null)
-                {
-                    _skillRepository.Delete(forDelete);
-                    _skillRepository.Save();
-
-                    return ConvertToDTO(forDelete);
-                }
-                else
-                {
-                    throw new Exception("DELETE : There is no skill with Id :" + skill.Id);
-                }
-
-            }
-            else
-            {
-                throw new Exception("DELETE : The received skill for delete have null Id");
-            }
-
-        }
-
-
-        public IEnumerable<SkillDTO> GetAll()
-        {
-            var query = _skillRepository.GetAllAsQueryable().ToList();
+            var query = await _skillRepository.GetAllSkillsIncludeAsync();
 
             var result = new List<SkillDTO>();
 
             foreach(var elem in query)
             {
-                result.Add(ConvertToDTO(elem));
+                result.Add(ConvertToDTOforAdminTable(elem));
 
             }
 

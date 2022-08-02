@@ -4,14 +4,16 @@ using Handymand.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Handymand.Migrations
 {
     [DbContext(typeof(HandymandContext))]
-    partial class HandymandContextModelSnapshot : ModelSnapshot
+    [Migration("20220801075646_UpdateSkillAddedCreationUser")]
+    partial class UpdateSkillAddedCreationUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -212,17 +214,12 @@ namespace Handymand.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("ModificationUserId")
-                        .HasColumnType("int");
-
                     b.Property<string>("SkillName")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CreationUserId");
-
-                    b.HasIndex("ModificationUserId");
 
                     b.ToTable("Skills");
                 });
@@ -246,9 +243,6 @@ namespace Handymand.Migrations
 
                     b.Property<DateTime?>("Birthday")
                         .HasColumnType("datetime2");
-
-                    b.Property<bool>("Blocked")
-                        .HasColumnType("bit");
 
                     b.Property<DateTime>("DateCreated")
                         .HasColumnType("datetime2");
@@ -374,13 +368,7 @@ namespace Handymand.Migrations
                         .WithMany()
                         .HasForeignKey("CreationUserId");
 
-                    b.HasOne("Handymand.Models.User", "ModificationUser")
-                        .WithMany()
-                        .HasForeignKey("ModificationUserId");
-
                     b.Navigation("CreationUser");
-
-                    b.Navigation("ModificationUser");
                 });
 
             modelBuilder.Entity("Handymand.Models.Contract", b =>

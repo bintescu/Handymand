@@ -20,6 +20,7 @@ namespace Handymand.Models
         public string Phone { get; set; }
         public string Title { get; set; }
         public DateTime? Birthday { get; set; }
+        public bool Blocked { get; set; } = false;
 
         public Client ClientAccount { get; set; }
         public Freelancer FreelancerAccount { get; set; }

@@ -1,4 +1,5 @@
 ﻿using Handymand.Models;
+using Handymand.Models.DTOs;
 using Handymand.Repository.GenericRepository;
 using System;
 using System.Collections.Generic;
@@ -9,5 +10,8 @@ namespace Handymand.Repository.DatabaseRepositories
 {
     public interface ISkillRepository: IGenericRepository<Skill>
     {
+        Task<Skill> FindByNameAsync(string name);
+
+        Task<List<Skill>> GetAllSkillsIncludeAsync();
     }
 }
