@@ -144,7 +144,7 @@ namespace Handymand.Services
 
         public async Task<List<UserDTO>> GetAllUsers()
         {
-            var userList =  await _userRepository.GetAll();
+            var userList =  await _userRepository.GetAllWithoutAdmin();
 
             var response = new List<UserDTO>();
 
@@ -152,8 +152,10 @@ namespace Handymand.Services
             {
                 foreach (var user in userList)
                 {
+     
                     var dto = ConvertToDTOForAdminGetUser(user);
                     response.Add(dto);
+                    
                 }
 
             });
@@ -259,7 +261,7 @@ namespace Handymand.Services
         }
 
 
-        public async Task<ServiceResponse<byte[]>> GetMyUserProfileImage(int Id)
+        public async Task<ServiceResponse<byte[]>> GetProfileImage(int Id)
         {
             var response = new ServiceResponse<byte[]>();
 
@@ -300,6 +302,79 @@ namespace Handymand.Services
 
         }
 
+        public async Task<bool> UpdateUserAdmin(UserDTO dto)
+        {
+            if (dto.Id == null || dto.Id == 0)
+            {
+                throw new Exception("Can not update a user with id null or 0!");
+            }
+
+            if (dto.Email == "" || dto.Email == null)
+            {
+                throw new Exception("User can not be updated with empty email!");
+            }
+
+            var user = await _userRepository.FindByIdAsync((int)dto.Id);
+
+            if (user == null)
+            {
+                throw new Exception("There is no user with this id!");
+            }
+
+            user.Email = dto.Email;
+            user.WalletAddress = dto.WalletAddress;
+            user.Address = dto.Address;
+            user.Title = dto.Title;
+            user.AboutMe = dto.AboutMe;
+
+            _userRepository.Update(user);
+            return await _userRepository.SaveAsync();
+        }
+
+
+        public async Task<bool> Delete(UserDTO dto)
+        {
+            if (dto.Id == null || dto.Id == 0)
+            {
+                throw new Exception("Can not delete a user with id null or 0!");
+            }
+
+
+            var user = await _userRepository.FindByIdAsync((int)dto.Id);
+
+            if (user == null)
+            {
+                throw new Exception("There is no user with this id!");
+            }
+
+
+            _userRepository.Delete(user);
+
+            return await _userRepository.SaveAsync();
+
+        }
+
+        public async Task<bool> Block(UserDTO dto)
+        {
+            if (dto.Id == null || dto.Id == 0)
+            {
+                throw new Exception("Can not block a user with id null or 0!");
+            }
+
+
+            var user = await _userRepository.FindByIdAsync((int)dto.Id);
+
+            if (user == null)
+            {
+                throw new Exception("There is no user with this id!");
+            }
+
+            user.Blocked = !user.Blocked;
+
+            _userRepository.Update(user);
+
+            return await _userRepository.SaveAsync();
+        }
 
 
         public async Task<ServiceResponse<MyUserDTO>> UpdateUser(UpdateUserDTO dto)

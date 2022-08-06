@@ -4,151 +4,22 @@ using Handymand.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Handymand.Migrations
 {
     [DbContext(typeof(HandymandContext))]
-    partial class HandymandContextModelSnapshot : ModelSnapshot
+    [Migration("20220802122702_ManyToManySkillsJobOffer")]
+    partial class ManyToManySkillsJobOffer
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("ProductVersion", "5.0.11")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-            modelBuilder.Entity("Handymand.Models.City", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<DateTime>("DateCreated")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("DateModified")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Cities");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            DateCreated = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Name = "Bucuresti"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            DateCreated = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Name = "Iasi"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            DateCreated = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Name = "Cluj"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            DateCreated = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Name = "Timisoara"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            DateCreated = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Name = "Constanta"
-                        },
-                        new
-                        {
-                            Id = 6,
-                            DateCreated = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Name = "Craiova"
-                        },
-                        new
-                        {
-                            Id = 7,
-                            DateCreated = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Name = "Brasov"
-                        },
-                        new
-                        {
-                            Id = 8,
-                            DateCreated = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Name = "Galati"
-                        },
-                        new
-                        {
-                            Id = 9,
-                            DateCreated = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Name = "Ploiesti"
-                        },
-                        new
-                        {
-                            Id = 10,
-                            DateCreated = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Name = "Oradea"
-                        },
-                        new
-                        {
-                            Id = 11,
-                            DateCreated = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Name = "Braila"
-                        },
-                        new
-                        {
-                            Id = 12,
-                            DateCreated = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Name = "Arad"
-                        },
-                        new
-                        {
-                            Id = 13,
-                            DateCreated = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Name = "Buzau"
-                        },
-                        new
-                        {
-                            Id = 14,
-                            DateCreated = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Name = "Botosani"
-                        },
-                        new
-                        {
-                            Id = 15,
-                            DateCreated = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Name = "Suceava"
-                        },
-                        new
-                        {
-                            Id = 16,
-                            DateCreated = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Name = "Drobeta-Turnu Severin"
-                        },
-                        new
-                        {
-                            Id = 17,
-                            DateCreated = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Name = "Slatina"
-                        },
-                        new
-                        {
-                            Id = 18,
-                            DateCreated = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Name = "Deva"
-                        });
-                });
 
             modelBuilder.Entity("Handymand.Models.Client", b =>
                 {
@@ -289,9 +160,6 @@ namespace Handymand.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int?>("CityId")
-                        .HasColumnType("int");
-
                     b.Property<int?>("CreationUserId")
                         .HasColumnType("int");
 
@@ -313,15 +181,10 @@ namespace Handymand.Migrations
                     b.Property<double>("LowPriceRange")
                         .HasColumnType("float");
 
-                    b.Property<int?>("NoImages")
-                        .HasColumnType("int");
-
                     b.Property<string>("Title")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CityId");
 
                     b.HasIndex("CreationUserId");
 
@@ -515,15 +378,9 @@ namespace Handymand.Migrations
 
             modelBuilder.Entity("Handymand.Models.JobOffer", b =>
                 {
-                    b.HasOne("Handymand.Models.City", "City")
-                        .WithMany("JobOffers")
-                        .HasForeignKey("CityId");
-
                     b.HasOne("Handymand.Models.User", "CreationUser")
                         .WithMany("CreatedJobOffers")
                         .HasForeignKey("CreationUserId");
-
-                    b.Navigation("City");
 
                     b.Navigation("CreationUser");
                 });
@@ -560,11 +417,6 @@ namespace Handymand.Migrations
                     b.Navigation("CreationUser");
 
                     b.Navigation("ModificationUser");
-                });
-
-            modelBuilder.Entity("Handymand.Models.City", b =>
-                {
-                    b.Navigation("JobOffers");
                 });
 
             modelBuilder.Entity("Handymand.Models.Contract", b =>

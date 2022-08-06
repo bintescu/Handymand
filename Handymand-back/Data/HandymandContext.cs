@@ -23,6 +23,11 @@ namespace Handymand.Data
         public DbSet<Contract> Contracts { get; set; }
         public DbSet<ContractsSkills> ContractsSkills { get; set; }
 
+        public DbSet<JobOffer> JobOffer { get; set; }
+        public DbSet<JobOffersSkills> JobOffersSkills { get; set; }
+
+        public DbSet<City> Cities { get; set; }
+
 /*        public DbSet<Feedback> Feedbacks { get; set; }*/
 
         public HandymandContext(DbContextOptions<HandymandContext> options) : base(options)
@@ -44,6 +49,13 @@ namespace Handymand.Data
             modelBuilder.Entity<Contract>()
                 .HasOne(c => c.CreationUser).WithMany(u => u.CreatedContracts).HasForeignKey(c => c.IdCreationUser);
 
+
+            modelBuilder.Entity<JobOffer>()
+                .HasOne(j => j.City)
+                .WithMany(c => c.JobOffers)
+                .HasForeignKey(j => j.CityId);
+
+
 /*            modelBuilder.Entity<Contract>()
                 .HasOne(c => c.RefferedUser).WithMany(u => u.SubscribedContracts).HasForeignKey(c => c.IdRefferedUser);
 */
@@ -60,6 +72,23 @@ namespace Handymand.Data
                 .HasOne(u => u.ClientAccount).WithOne(c => c.User).HasForeignKey<Client>(c => c.IdUser);
 
             //Many to Many
+
+            modelBuilder.Entity<JobOffersSkills>().HasKey(key => new
+            {
+                key.IdSkill,
+                key.IdJobOffer
+            });
+
+            modelBuilder.Entity<JobOffersSkills>()
+                .HasOne<Skill>(js => js.Skill)
+                .WithMany(s => s.JobOffersSkills)
+                .HasForeignKey(js => js.IdSkill);
+
+            modelBuilder.Entity<JobOffersSkills>()
+                .HasOne<JobOffer>(js => js.JobOffer)
+                .WithMany(j => j.JobOffersSkills)
+                .HasForeignKey(js => js.IdJobOffer);
+
             modelBuilder.Entity<FreelancersSkills>().HasKey(key => new
             {
                 key.IdFreelancer,
@@ -98,6 +127,32 @@ namespace Handymand.Data
                 u.Property<DateTime?>("DateModified")
                     .HasComputedColumnSql("GETDATE()");
             });
+
+
+            //Seed Citites
+
+            modelBuilder.Entity<City>().HasData
+                (
+                    new City() { Id = 1, Name = "Bucuresti"},
+                    new City() { Id = 2, Name = "Iasi" },
+                    new City() { Id = 3, Name = "Cluj" },
+                    new City() { Id = 4, Name = "Timisoara" },
+                    new City() { Id = 5, Name = "Constanta" },
+                    new City() { Id = 6, Name = "Craiova" },
+                    new City() { Id = 7, Name = "Brasov" },
+                    new City() { Id = 8, Name = "Galati" },
+                    new City() { Id = 9, Name = "Ploiesti" },
+                    new City() { Id = 10, Name = "Oradea" },
+                    new City() { Id = 11, Name = "Braila" },
+                    new City() { Id = 12, Name = "Arad" },
+                    new City() { Id = 13, Name = "Buzau"},
+                    new City() { Id = 14, Name = "Botosani" },
+                    new City() { Id = 15, Name = "Suceava" },
+                    new City() { Id = 16, Name = "Drobeta-Turnu Severin"},
+                    new City() { Id = 17, Name = "Slatina" },
+                    new City() { Id = 18, Name = "Deva" }
+                );
+
             base.OnModelCreating(modelBuilder);
         }
     }

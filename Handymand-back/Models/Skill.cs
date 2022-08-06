@@ -21,5 +21,8 @@ namespace Handymand.Models
         public ICollection<FreelancersSkills> FreelancersSkills { get; set; }
 
         public ICollection<ContractsSkills> ContractSkills { get; set; }
+
+        public ICollection<JobOffersSkills> JobOffersSkills { get; set; }
+
     }
 }

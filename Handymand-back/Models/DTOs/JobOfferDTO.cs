@@ -18,7 +18,12 @@ namespace Handymand.Models.DTOs
         public string Title { get; set; }
         public double LowPriceRange { get; set; }
         public double HighPriceRange { get; set; }
+        public int? NoImages { get; set; }
         public DateTime DateCreated { get; set; }
+        public List<int> IdSkills { get; set; }
+        public List<SkillShortDTO> Skills { get; set; }
+        public int? CityId { get; set; }
+        public CityShortDTO City { get; set; }
         public List<IFormFile> Files { get; set; }
 
         public override string ToString()

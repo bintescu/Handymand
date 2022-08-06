@@ -15,5 +15,11 @@ namespace Handymand.Models
         public double LowPriceRange { get; set; }
         public double HighPriceRange { get; set; }
         public string Title { get; set; }
+        public int? NoImages { get; set; }
+
+        public ICollection<JobOffersSkills> JobOffersSkills { get; set; }
+
+        public int? CityId { get; set; }
+        public City City { get; set; }
     }
 }

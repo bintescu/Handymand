@@ -10,14 +10,16 @@ namespace Handymand.Services
 {
     public interface IJobOfferService
     {
-        public List<JobOfferDTO> AllJobOffers();
+        Task<List<JobOfferDTO>> GetAllJobOffers(int pageNr, int noElements, FilterJobOffersDTO filter);
 
-        public Task<ServiceResponse<JobOfferDTO>> Create(JobOfferDTO dto);
+        Task<ServiceResponse<JobOfferDTO>> Create(JobOfferDTO dto);
 
-        public JobOfferDTO GetById(int Id);
+        JobOfferDTO GetById(int Id);
 
-        public Task<string> TestAsyncMethod(string fileName);
-        public Task SaveJobOffersImages(List<IFormFile> files, int N);
+        Task SaveJobOffersImages(List<IFormFile> files, int N);
+        Task<int> GetTotalNrOfJobOffers();
 
+        Task<List<CityShortDTO>> GetAllCities();
+        Task<List<byte[]>> GetImages(int id);
     }
 }

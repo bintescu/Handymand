@@ -23,7 +23,7 @@ namespace Handymand.Services
 
         Task<ServiceResponse<MyUserDTO>> GetMyUser(int Id);
 
-        Task<ServiceResponse<byte[]>> GetMyUserProfileImage(int Id);
+        Task<ServiceResponse<byte[]>> GetProfileImage(int Id);
 
         //Create
 
@@ -33,6 +33,14 @@ namespace Handymand.Services
 
         //Update
         Task<ServiceResponse<MyUserDTO>> UpdateUser(UpdateUserDTO dto);
+
+        Task<bool> UpdateUserAdmin(UserDTO dto);
+
+
+        //Delete
+
+        Task<bool> Delete(UserDTO dto);
+        Task<bool> Block(UserDTO dto);
 
         //Crypt and Decrypt
 

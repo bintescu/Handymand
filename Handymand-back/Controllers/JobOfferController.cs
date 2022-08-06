@@ -4,6 +4,7 @@ using Handymand.Services;
 using Handymand.Utilities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.StaticFiles;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -26,25 +27,70 @@ namespace Handymand.Controllers
             _jobOfferService = jobOfferService;
         }
 
-        [HttpGet("allJobOffers")]
-        public IActionResult GetAllJobOffers()
+        [HttpGet("total")]
+        public async Task<ActionResult<ServiceResponse<int>>> GetTotalNrOfJobOffers()
         {
+            var result = new ServiceResponse<int>();
+
             try
             {
-                var result = _jobOfferService.AllJobOffers();
-                return Ok(result);
+                int number = await _jobOfferService.GetTotalNrOfJobOffers();
+                result.Data = number;
             }
             catch (Exception e)
             {
-                var resp = new HttpResponseMessage(HttpStatusCode.NotFound)
-                {
-                    Content = new StringContent(e.Message),
-                    ReasonPhrase = "Server Error"
-                };
-                throw new System.Web.Http.HttpResponseException(resp);
+                result.Success = false;
+                result.Message = e.Message;
+                return BadRequest(result);
 
             }
 
+            return Ok(result);
+        }
+
+
+        [HttpPost("allJobOffers")]
+        public async Task<ActionResult<ServiceResponse<IEnumerable<JobOfferDTO>>>> GetAllJobOffer([FromQuery] int pageNr, [FromQuery] int noElements , [FromBody] FilterJobOffersDTO filter)
+        {
+
+            var result = new ServiceResponse<List<JobOfferDTO>>();
+
+            try
+            {
+                var jobOffers = await _jobOfferService.GetAllJobOffers(pageNr,noElements, filter);
+                result.Data = jobOffers;
+            }
+            catch (Exception e)
+            {
+                result.Success = false;
+                result.Message = e.Message;
+                return BadRequest(result);
+
+            }
+
+            return Ok(result);
+        }
+
+
+        [HttpGet("allcities")]
+        public async Task<ActionResult<ServiceResponse<IEnumerable<CityShortDTO>>>> GetAll()
+        {
+            var result = new ServiceResponse<List<CityShortDTO>>();
+
+            try
+            {
+                var citiesList = await _jobOfferService.GetAllCities();
+                result.Data = citiesList;
+            }
+            catch (Exception e)
+            {
+                result.Success = false;
+                result.Message = e.Message;
+                return BadRequest(result);
+
+            }
+
+            return Ok(result);
         }
 
         [Authorization(Role.User,Role.Admin)]
@@ -88,7 +134,7 @@ namespace Handymand.Controllers
         //https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/concepts/async/
         //https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/operators/await
         //https://angular.io/guide/forms
-        [HttpPost("testasyncpost")]
+/*        [HttpPost("testasyncpost")]
         public async Task<IActionResult> TestAsyncPost([FromForm] string testString)
         {
             if(testString is null)
@@ -98,7 +144,7 @@ namespace Handymand.Controllers
 
             string result = await _jobOfferService.TestAsyncMethod(testString);
             return Ok(result);
-        }
+        }*/
 
 
         //Poti sa pui in documentatie si asta:
@@ -150,6 +196,107 @@ namespace Handymand.Controllers
             // Don't rely on or trust the FileName property without validation.
 
             return Ok(new { count = dto.files.Count, size });
+        }
+
+        [HttpGet("getimages/{id}")]
+        public async Task<ActionResult<ServiceResponse<List<byte[]>>>> GetImages([FromRoute] int? id)
+        {
+            var response = new ServiceResponse<List<byte[]>>();
+
+            if(id == null)
+            {
+                response.Success = false;
+                response.Message = "Id from query params is null";
+                return BadRequest(response);
+            }
+            try
+            {
+
+                response.Data = await _jobOfferService.GetImages((int)id);
+
+                if (response.Data.Count() == 0)
+                {
+                    response.Success = false;
+                    response.Message = "Did not find any images!";
+                    return BadRequest(response);
+                }
+
+                return Ok(response);
+                
+
+                
+
+            }
+            catch (Exception e)
+            {
+
+                response.Success = false;
+                response.Message = e.Message;
+                return BadRequest(response);
+            }
+
+        }
+
+        [HttpGet("getimagetest")]
+        public async Task<FileResult> GetImageTest()
+        {
+            string folderPath = "JobOffers_Images\\2093\\dog_image2.jpg";
+            string currentDirectory = Directory.GetCurrentDirectory();
+            var folderPathComplete = Path.Combine(currentDirectory, folderPath);
+
+            var provider = new FileExtensionContentTypeProvider();
+
+            if (!provider.TryGetContentType(folderPathComplete, out var contentType))
+            {
+                contentType = "application/octet-stream";
+            }
+
+            if (Directory.Exists(folderPathComplete))
+            {
+                string[] allFiles = Directory.GetFiles(folderPathComplete);
+            }
+                var bytes = await System.IO.File.ReadAllBytesAsync(folderPathComplete);
+            return File(bytes, contentType, Path.GetFileName(folderPathComplete));
+        }
+
+
+
+        [HttpGet("getimage/{idJob}")]
+        public async Task<ActionResult> GetAllImageTest([FromRoute] int? idJob, [FromQuery] int? id)
+        {
+            if(idJob == null || id == null || id < 0)
+            {
+                return BadRequest("Ids can not be null or 0!");
+            }
+
+            string folderPath = "JobOffers_Images\\" + idJob;
+            string currentDirectory = Directory.GetCurrentDirectory();
+            var folderPathComplete = Path.Combine(currentDirectory, folderPath);
+
+            var provider = new FileExtensionContentTypeProvider();
+
+            if (Directory.Exists(folderPathComplete))
+            {
+                string[] allFiles = Directory.GetFiles(folderPathComplete);
+
+                for(int i = 0; i < allFiles.Length; i++)
+                {
+                    if(i+1 == id)
+                    {
+                        if (!provider.TryGetContentType(allFiles[i], out var contentType))
+                        {
+                            contentType = "application/octet-stream";
+                        }
+
+                        var bytes = await System.IO.File.ReadAllBytesAsync(allFiles[i]);
+                        return File(bytes, contentType, Path.GetFileName(allFiles[i]));
+                    }
+
+                }
+            }
+
+            return NotFound();
+
         }
 
         [HttpPost("getById")]

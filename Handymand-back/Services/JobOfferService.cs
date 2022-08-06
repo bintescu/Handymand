@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using Microsoft.AspNetCore.Http;
 using System.IO;
+using Microsoft.EntityFrameworkCore;
 
 namespace Handymand.Services
 {
@@ -32,6 +33,7 @@ namespace Handymand.Services
             jobOffer.HighPriceRange = dto.HighPriceRange;
             jobOffer.Title = dto.Title;
             jobOffer.CreationUserId = dto.IdCreationUser;
+            jobOffer.CityId = dto.CityId;
 
             return jobOffer;
         }
@@ -54,27 +56,96 @@ namespace Handymand.Services
             dto.HighPriceRange = jobOffer.HighPriceRange;
             dto.DateCreated = jobOffer.DateCreated;
             dto.Title = jobOffer.Title;
+            dto.NoImages = jobOffer.NoImages;
             
             return dto;
         }
-        public List<JobOfferDTO> AllJobOffers()
-        {
-            var initialQuery =  _jobOfferRepository.GetAllAsQueryable();
 
-            var result = initialQuery.Select(i => new JobOfferDTO() 
+        public async Task<int> GetTotalNrOfJobOffers()
+        {
+            return await _jobOfferRepository.GetTotalNrOfJobOffers();
+        }
+
+
+        public async Task<List<byte[]>> GetImages(int Id)
+        {
+            var response = new List<byte[]>();
+
+            string folderPath = "JobOffers_Images\\" + Id;
+            string currentDirectory = Directory.GetCurrentDirectory();
+            var folderPathComplete = Path.Combine(currentDirectory, folderPath);
+
+
+
+            if (Directory.Exists(folderPathComplete))
             {
-                IdJobOffer = i.Id,
-                IdCreationUser = i.CreationUserId,
-                FirstName = i.CreationUser != null ? i.CreationUser.FirstName : null,
-                LastName = i.CreationUser != null ? i.CreationUser.LastName : null,
-                Email = i.CreationUser != null ? i.CreationUser.Email : null,
-                Description = i.Description,
-                Location = i.Location,
-                Title = i.Title,
-                LowPriceRange = i.LowPriceRange,
-                HighPriceRange = i.HighPriceRange,
-                DateCreated = i.DateCreated
-            }).ToList();
+                string[] allFiles = Directory.GetFiles(folderPathComplete);
+
+
+                foreach (var file in allFiles)
+                {
+                        byte[] arr = await File.ReadAllBytesAsync(file);
+                        response.Add(arr);
+                }
+
+            }
+
+
+            return response;
+        }
+
+
+        public async Task<List<JobOfferDTO>> GetAllJobOffers(int pageNr, int noElements, FilterJobOffersDTO filter)
+        {
+
+            
+            int skip = (pageNr) * noElements;
+
+            var initialList = await _jobOfferRepository.GetAllJobOffersInclude(skip,noElements,filter);
+
+            var result = new List<JobOfferDTO>();
+
+            await Task.Run(() =>
+            {
+                foreach (var joboffer in initialList)
+                {
+                    var jobdto = new JobOfferDTO()
+                    {
+                        IdJobOffer = joboffer.Id,
+                        IdCreationUser = joboffer.CreationUserId,
+                        FirstName = joboffer.CreationUser != null ? joboffer.CreationUser.FirstName : null,
+                        LastName = joboffer.CreationUser != null ? joboffer.CreationUser.LastName : null,
+                        Email = joboffer.CreationUser != null ? joboffer.CreationUser.Email : null,
+                        Description = joboffer.Description,
+                        Location = joboffer.Location,
+                        Title = joboffer.Title,
+                        LowPriceRange = joboffer.LowPriceRange,
+                        HighPriceRange = joboffer.HighPriceRange,
+                        DateCreated = joboffer.DateCreated,
+                        NoImages = joboffer.NoImages
+                    };
+
+                    if(joboffer.JobOffersSkills.Count > 0)
+                    {
+                        jobdto.Skills = joboffer.JobOffersSkills.Select(jos => new SkillShortDTO()
+                        {
+                            Id = jos.IdSkill,
+                            SkillName = jos.Skill.SkillName
+                        }).ToList();
+                    }
+                    if(joboffer.City != null)
+                    {
+                        jobdto.City = new CityShortDTO()
+                        {
+                            Id = joboffer.City.Id,
+                            Name = joboffer.City.Name
+                        };
+                    }
+
+                    result.Add(jobdto);
+                };
+            });
+
 
             return result;
         }
@@ -84,6 +155,9 @@ namespace Handymand.Services
             var response = new ServiceResponse<JobOfferDTO>();
 
             JobOffer jobOffer = ConvertFromDTO(dto);
+
+            
+
             jobOffer.DateCreated = DateTime.Now;
 
             await _jobOfferRepository.CreateAsync(jobOffer);
@@ -104,6 +178,18 @@ namespace Handymand.Services
                     }
                 }
 
+                try
+                {
+                    if(dto.IdSkills != null && dto.IdSkills.Count > 0)
+                    {
+                        await _jobOfferRepository.AddSkillsOnThisJobOfferAsync(jobOffer.Id, dto.IdSkills);
+
+                    }
+                }
+                catch(Exception e)
+                {
+                    response.Message += "... Exception when bind joboffer with skills : " + e.Message + "\n";
+                }
 
             }
             else
@@ -147,19 +233,6 @@ namespace Handymand.Services
 
         }
 
-        public async Task<string> TestAsyncMethod(string fileName)
-        {
-            string result = fileName;
-
-            await Task.Run(() => {
-                Thread.Sleep(2000);
-                result += " executed! ";
-            });
-
-            result += " afterExec ";
-            return result;
-        }
-
         public JobOfferDTO GetById(int Id)
         {
             var initialQuery = _jobOfferRepository.GetById(Id);
@@ -175,6 +248,12 @@ namespace Handymand.Services
 
         }
 
-        
+
+        public async Task<List<CityShortDTO>> GetAllCities()
+        {
+            return await _jobOfferRepository.GetAllCities();
+        }
+
+
     }
 }

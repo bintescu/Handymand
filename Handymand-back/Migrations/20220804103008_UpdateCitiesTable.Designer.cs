@@ -4,14 +4,16 @@ using Handymand.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Handymand.Migrations
 {
     [DbContext(typeof(HandymandContext))]
-    partial class HandymandContextModelSnapshot : ModelSnapshot
+    [Migration("20220804103008_UpdateCitiesTable")]
+    partial class UpdateCitiesTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -289,9 +291,6 @@ namespace Handymand.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int?>("CityId")
-                        .HasColumnType("int");
-
                     b.Property<int?>("CreationUserId")
                         .HasColumnType("int");
 
@@ -313,15 +312,10 @@ namespace Handymand.Migrations
                     b.Property<double>("LowPriceRange")
                         .HasColumnType("float");
 
-                    b.Property<int?>("NoImages")
-                        .HasColumnType("int");
-
                     b.Property<string>("Title")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CityId");
 
                     b.HasIndex("CreationUserId");
 
@@ -515,15 +509,9 @@ namespace Handymand.Migrations
 
             modelBuilder.Entity("Handymand.Models.JobOffer", b =>
                 {
-                    b.HasOne("Handymand.Models.City", "City")
-                        .WithMany("JobOffers")
-                        .HasForeignKey("CityId");
-
                     b.HasOne("Handymand.Models.User", "CreationUser")
                         .WithMany("CreatedJobOffers")
                         .HasForeignKey("CreationUserId");
-
-                    b.Navigation("City");
 
                     b.Navigation("CreationUser");
                 });
@@ -560,11 +548,6 @@ namespace Handymand.Migrations
                     b.Navigation("CreationUser");
 
                     b.Navigation("ModificationUser");
-                });
-
-            modelBuilder.Entity("Handymand.Models.City", b =>
-                {
-                    b.Navigation("JobOffers");
                 });
 
             modelBuilder.Entity("Handymand.Models.Contract", b =>

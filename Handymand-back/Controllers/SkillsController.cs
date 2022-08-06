@@ -25,15 +25,37 @@ namespace Handymand.Controllers
             _skillService = skillService;
         }
 
+        [Authorization(Role.User,Role.Admin)]
+        [HttpGet("all")]
+        public async Task<ActionResult<ServiceResponse<IEnumerable<SkillShortDTO>>>> GetAll()
+        {
+            var result = new ServiceResponse<List<SkillShortDTO>>();
+
+            try
+            {
+                var skillList = await _skillService.GetAll();
+                result.Data = skillList;
+            }
+            catch (Exception e)
+            {
+                result.Success = false;
+                result.Message = e.Message;
+                return BadRequest(result);
+
+            }
+
+            return Ok(result);
+        }
+
         [Authorization(Role.Admin)]
         [HttpGet("allforadmin")]
-        public async Task<ActionResult<ServiceResponse<IEnumerable<SkillDTO>>>> GetAll()
+        public async Task<ActionResult<ServiceResponse<IEnumerable<SkillDTO>>>> GetAllForAdmin()
         {
             var result = new ServiceResponse<List<SkillDTO>>();
 
             try
             {
-                var skillList = await _skillService.GetAll();
+                var skillList = await _skillService.GetAllForAdmin();
                 result.Data = skillList;
             }
             catch (Exception e)

@@ -1,5 +1,6 @@
 ﻿using Handymand.Data;
 using Handymand.Models;
+using Handymand.Models.DTOs;
 using Handymand.Repository.GenericRepository;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -25,6 +26,17 @@ namespace Handymand.Repository.DatabaseRepositories
         {
             return await _table.Include("CreationUser").Include("ModificationUser").ToListAsync();
 
+        }
+
+
+        public async Task<List<SkillShortDTO>> GetSkillShortDTOsAsync()
+        {
+            return await _table.Select(s =>
+            new SkillShortDTO()
+            {
+                Id = s.Id,
+                SkillName = s.SkillName
+            }).ToListAsync();
         }
     }
 }

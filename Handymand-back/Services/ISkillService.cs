@@ -15,8 +15,8 @@ namespace Handymand.Services
         Task<bool> Delete(SkillDTO skill);
 
 
-        Task<List<SkillDTO>> GetAll();
-
+        Task<List<SkillDTO>> GetAllForAdmin();
+        Task<List<SkillShortDTO>> GetAll();
 
     }
 }

@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Claims;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -123,14 +124,15 @@ namespace Handymand.Controllers
         }*/
 
         [Authorization(Role.User,Role.Admin)]
-        [HttpGet("getuser/{paramId}")]
-        public async Task<ActionResult<ServiceResponse<UserDTO>>> GetUser([FromRoute] string paramId)
+        [HttpPost("getuser")]
+        public async Task<ActionResult<ServiceResponse<UserDTO>>> GetUser(DTOforIds dTOforIds) 
         {
             var response = new ServiceResponse<UserDTO>();
+            var key = _appSettings.Key;
 
-            if (paramId != null && paramId != "")
+            if (dTOforIds.cryptId != null && dTOforIds.cryptId != "")
             {
-                string decryptedId = _userService.DecryptStringAES(paramId);
+                string decryptedId = response.DecryptStringAES(dTOforIds.cryptId,key,dTOforIds.Iv);
 
 
                 try
@@ -227,7 +229,50 @@ namespace Handymand.Controllers
                 }
                 else
                 {
-                    response = await _userService.GetMyUserProfileImage(id);
+                    response = await _userService.GetProfileImage(id);
+
+
+                    if (response.Success == false)
+                    {
+                        return BadRequest(response);
+                    }
+                    else
+                    {
+                        return Ok(response);
+                    }
+
+                }
+
+            }
+            catch (Exception e)
+            {
+
+                response.Success = false;
+                response.Message = e.Message;
+                return BadRequest(response);
+            }
+
+        }
+
+
+        [Authorization(Role.User, Role.Admin)]
+        [HttpPost("userprofileImage")]
+        public async Task<ActionResult<ServiceResponse<byte[]>>> GetUserProfileImage([FromBody] DTOforIds dTOforIds)
+        {
+            var response = new ServiceResponse<byte[]>();
+
+            try
+            {
+                if (dTOforIds.cryptId == null)
+                {
+                    return BadRequest("Id used for request an user is null!");
+                }
+                else
+                {
+                    var key = _appSettings.Key;
+                    var id = response.DecryptStringAES(dTOforIds.cryptId, key,dTOforIds.Iv);
+
+                    response = await _userService.GetProfileImage(Convert.ToInt32(id));
 
 
                     if (response.Success == false)
@@ -316,6 +361,93 @@ namespace Handymand.Controllers
 
             return Ok(result);
         }
+
+        [Authorization(Role.Admin)]
+        [HttpPut("update")]
+        public async Task<ActionResult<ServiceResponse<bool>>> Update(UserDTO user)
+        {
+            var result = new ServiceResponse<bool>();
+
+
+            if (user != null)
+            {
+                try
+                {
+                    int id = Convert.ToInt32(HttpContext.User.FindFirstValue("id"));
+                    if (id == 0)
+                    {
+                        return BadRequest("Id used for update a user is null!");
+                    }
+
+                    await _userService.UpdateUserAdmin(user);
+                    result.Message = "User updated!";
+                }
+                catch (Exception e)
+                {
+                    result.Message = e.Message;
+                    result.Success = false;
+                    return BadRequest(result);
+                }
+            }
+
+            return Ok(result);
+
+        }
+
+        [Authorization(Role.Admin)]
+        [HttpDelete("delete")]
+        public async Task<ActionResult<ServiceResponse<bool>>> Delete(UserDTO dto)
+        {
+            var result = new ServiceResponse<bool>();
+
+
+            if (dto != null)
+            {
+                try
+                {
+
+                    await _userService.Delete(dto);
+                    result.Message = "User " + dto.Email + " deleted!";
+                }
+                catch (Exception e)
+                {
+                    result.Message = e.Message;
+                    result.Success = false;
+                    return BadRequest(result);
+                }
+            }
+
+            return Ok(result);
+
+        }
+
+        [Authorization(Role.Admin)]
+        [HttpPut("block")]
+        public async Task<ActionResult<ServiceResponse<bool>>> Block(UserDTO dto)
+        {
+            var result = new ServiceResponse<bool>();
+
+
+            if (dto != null)
+            {
+                try
+                {
+
+                    await _userService.Block(dto);
+                    result.Message = "User " + dto.Email + " blocked!";
+                }
+                catch (Exception e)
+                {
+                    result.Message = e.Message;
+                    result.Success = false;
+                    return BadRequest(result);
+                }
+            }
+
+            return Ok(result);
+
+        }
+
 
     }
 }

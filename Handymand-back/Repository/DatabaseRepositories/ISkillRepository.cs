@@ -13,5 +13,6 @@ namespace Handymand.Repository.DatabaseRepositories
         Task<Skill> FindByNameAsync(string name);
 
         Task<List<Skill>> GetAllSkillsIncludeAsync();
+        Task<List<SkillShortDTO>> GetSkillShortDTOsAsync();
     }
 }

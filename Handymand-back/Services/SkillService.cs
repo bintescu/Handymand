@@ -32,6 +32,14 @@ namespace Handymand.Services
             return dto;
         }
 
+        private SkillShortDTO ConvertToShortDTO(Skill skill)
+        {
+            SkillShortDTO dto = new SkillShortDTO();
+            dto.Id = skill.Id;
+            dto.SkillName = skill.SkillName;
+            return dto;
+        }
+
         private Skill ConvertFromDTOForCreate(SkillDTO skill)
         {
             Skill item = new Skill();
@@ -134,7 +142,7 @@ namespace Handymand.Services
         }
 
 
-        public async Task<List<SkillDTO>> GetAll()
+        public async Task<List<SkillDTO>> GetAllForAdmin()
         {
             var query = await _skillRepository.GetAllSkillsIncludeAsync();
 
@@ -147,6 +155,11 @@ namespace Handymand.Services
             }
 
             return result;
+        }
+
+        public async Task<List<SkillShortDTO>> GetAll()
+        {
+            return await _skillRepository.GetSkillShortDTOsAsync();
         }
 
 

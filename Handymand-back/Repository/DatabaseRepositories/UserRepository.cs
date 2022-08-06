@@ -40,5 +40,11 @@ namespace Handymand.Repository.DatabaseRepositories
         {
             return await _table.FirstOrDefaultAsync(x => x.Email.ToLower().Equals(email.ToLower()));
         }
+
+        public async Task<List<User>> GetAllWithoutAdmin()
+        {
+            return await _table.Where(u => u.Role == Role.User).ToListAsync();
+
+        }
     }
 }

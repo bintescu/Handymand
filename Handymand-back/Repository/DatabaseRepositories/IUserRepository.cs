@@ -16,6 +16,8 @@ namespace Handymand.Repository.DatabaseRepositories
 
         List<User> GetAllWithInclude();
 
+        Task<List<User>> GetAllWithoutAdmin();
+
         Task<User> GetByEmail(string email);
 
        // Task<User> UpdateUser(User userForUpdate, User newVariant);
