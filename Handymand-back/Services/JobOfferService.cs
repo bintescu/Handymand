@@ -233,17 +233,58 @@ namespace Handymand.Services
 
         }
 
-        public JobOfferDTO GetById(int Id)
+        public async Task<ServiceResponse<JobOfferDTO>> GetById(int Id)
         {
-            var initialQuery = _jobOfferRepository.GetById(Id);
+            var initialQuery = await _jobOfferRepository.GetById(Id);
+
+            var result = new ServiceResponse<JobOfferDTO>();
 
             if(initialQuery != null)
             {
-                var result = ConvertToDTO(initialQuery);
+
+                var jobdto = new JobOfferDTO()
+                {
+                    IdJobOffer = initialQuery.Id,
+                    IdCreationUser = initialQuery.CreationUserId,
+                    FirstName = initialQuery.CreationUser != null ? initialQuery.CreationUser.FirstName : null,
+                    LastName = initialQuery.CreationUser != null ? initialQuery.CreationUser.LastName : null,
+                    Email = initialQuery.CreationUser != null ? initialQuery.CreationUser.Email : null,
+                    Description = initialQuery.Description,
+                    Location = initialQuery.Location,
+                    Title = initialQuery.Title,
+                    LowPriceRange = initialQuery.LowPriceRange,
+                    HighPriceRange = initialQuery.HighPriceRange,
+                    DateCreated = initialQuery.DateCreated,
+                    NoImages = initialQuery.NoImages
+                };
+
+                if (initialQuery.JobOffersSkills.Count > 0)
+                {
+                    jobdto.Skills = initialQuery.JobOffersSkills.Select(jos => new SkillShortDTO()
+                    {
+                        Id = jos.IdSkill,
+                        SkillName = jos.Skill.SkillName
+                    }).ToList();
+                }
+                if (initialQuery.City != null)
+                {
+                    jobdto.City = new CityShortDTO()
+                    {
+                        Id = initialQuery.City.Id,
+                        Name = initialQuery.City.Name
+                    };
+                }
+
+
+                result.Data = jobdto;
                 return result;
             }
-
-            return null;
+            else
+            {
+                result.Success = false;
+                result.Message = "There is no JobOffer with given id.";
+                return result;
+            }
 
 
         }

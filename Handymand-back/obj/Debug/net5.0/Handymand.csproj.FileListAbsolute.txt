@@ -287,3 +287,6 @@ D:\A AN FACULTATE 4\SEM 1\Licenta\Handymand-back\Handymand-back\obj\Debug\net5.0
 D:\A AN FACULTATE 4\SEM 1\Licenta\Handymand-back\Handymand-back\obj\Debug\net5.0\Handymand.pdb
 D:\A AN FACULTATE 4\SEM 1\Licenta\Handymand-back\Handymand-back\obj\Debug\net5.0\Handymand.genruntimeconfig.cache
 D:\A AN FACULTATE 4\SEM 1\Licenta\Handymand-back\Handymand-back\obj\Debug\net5.0\Handymand.csproj.AssemblyReference.cache
+D:\A AN FACULTATE 4\SEM 1\Licenta\Handymand-back\Handymand-back\bin\Debug\net5.0\MessagePack.dll
+D:\A AN FACULTATE 4\SEM 1\Licenta\Handymand-back\Handymand-back\bin\Debug\net5.0\Microsoft.AspNetCore.SignalR.Protocols.MessagePack.dll
+D:\A AN FACULTATE 4\SEM 1\Licenta\Handymand-back\Handymand-back\bin\Debug\net5.0\System.Net.WebSockets.WebSocketProtocol.dll

@@ -55,7 +55,6 @@ namespace Handymand.Services
             dto.Email = user.Email;
             dto.FirstName = user.FirstName;
             dto.LastName = user.LastName;
-            dto.Username = user.Username;
             dto.Email = user.Email;
             dto.Address = user.Address;
             dto.AboutMe = user.AboutMe;
@@ -114,17 +113,17 @@ namespace Handymand.Services
             var response = new ServiceResponse<UserResponseDTO>();
             var user = await _userRepository.GetByEmail(model.Email);
 
-            if(user == null)
+            if (user == null)
             {
                 response.Success = false;
                 response.Message = "Wrong password or email!";
             }
-            else if(!BCrypt.Net.BCrypt.Verify(model.Password, user.PasswordHash))
+            else if (!BCrypt.Net.BCrypt.Verify(model.Password, user.PasswordHash))
             {
                 response.Success = false;
                 response.Message = "Wrong password or email!";
             }
-            else if(user.Blocked == true)
+            else if (user.Blocked == true)
             {
                 response.Success = false;
                 response.Message = "This user is blocked!";
@@ -144,7 +143,7 @@ namespace Handymand.Services
 
         public async Task<List<UserDTO>> GetAllUsers()
         {
-            var userList =  await _userRepository.GetAllWithoutAdmin();
+            var userList = await _userRepository.GetAllWithoutAdmin();
 
             var response = new List<UserDTO>();
 
@@ -152,10 +151,10 @@ namespace Handymand.Services
             {
                 foreach (var user in userList)
                 {
-     
+
                     var dto = ConvertToDTOForAdminGetUser(user);
                     response.Add(dto);
-                    
+
                 }
 
             });
@@ -169,16 +168,16 @@ namespace Handymand.Services
         {
 
             var response = await _userRepository.GetByEmail(user.Email);
-            if(response != null)
+            if (response != null)
             {
                 throw new Exception("A user with this email already exists. Use a different email.");
             }
 
             const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-            string walletAdd =  new string(Enumerable.Repeat(chars, 12)
+            string walletAdd = new string(Enumerable.Repeat(chars, 12)
                 .Select(s => s[random.Next(s.Length)]).ToArray());
 
-            var animals = new List<string> { "Brown Bear", "Pink Cheetah", "Black Crocodile", "White Crocodile", "Red Fox", "White Fox", "Classic Lion", "Big Shark","Bigger Shark", "Coral Tiger", "Cyan Whale", "Crimson Wolf", "Gray Ape", "Arabian Cobra", "Hotpink Armadillo" };
+            var animals = new List<string> { "Brown Bear", "Pink Cheetah", "Black Crocodile", "White Crocodile", "Red Fox", "White Fox", "Classic Lion", "Big Shark", "Bigger Shark", "Coral Tiger", "Cyan Whale", "Crimson Wolf", "Gray Ape", "Arabian Cobra", "Hotpink Armadillo" };
             int index = random.Next(15);
             string title = animals[index];
 
@@ -224,10 +223,10 @@ namespace Handymand.Services
 
         public async Task<ServiceResponse<UserDTO>> GetById(int Id)
         {
-            var result =  await _userRepository.GetById(Id);
+            var result = await _userRepository.GetById(Id);
             var response = new ServiceResponse<UserDTO>();
 
-            if(result == null)
+            if (result == null)
             {
                 response.Success = false;
                 response.Message = "No user found!";
@@ -275,7 +274,7 @@ namespace Handymand.Services
             {
                 string[] allFiles = Directory.GetFiles(folderPathComplete);
 
-                
+
                 foreach (var file in allFiles)
                 {
 
@@ -288,7 +287,7 @@ namespace Handymand.Services
                 }
             }
 
-            if(arr != null)
+            if (arr != null)
             {
                 response.Data = arr;
             }
@@ -382,7 +381,7 @@ namespace Handymand.Services
             User user = await _userRepository.GetById(dto.Id);
             var response = new ServiceResponse<MyUserDTO>();
 
-            if(user == null)
+            if (user == null)
             {
                 response.Success = false;
                 response.Message = "No user found!";
@@ -400,8 +399,8 @@ namespace Handymand.Services
                 await _userRepository.SaveAsync();
                 try
                 {
-                    if(dto.ProfilePicture != null)
-                    await SavePictureImage(dto.ProfilePicture, dto.Id);
+                    if (dto.ProfilePicture != null)
+                        await SavePictureImage(dto.ProfilePicture, dto.Id);
                 }
                 catch (Exception e)
                 {
@@ -431,8 +430,8 @@ namespace Handymand.Services
             {
                 string[] allFiles = Directory.GetFiles(folderPathComplete);
 
-                foreach(string f in allFiles)
-                {  
+                foreach (string f in allFiles)
+                {
                     if (f.Contains("profile"))
                     {
                         File.Delete(f);

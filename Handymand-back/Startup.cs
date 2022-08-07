@@ -1,3 +1,4 @@
+using Handymand.Controllers.Chat;
 using Handymand.Data;
 using Handymand.Repository.DatabaseRepositories;
 using Handymand.Services;
@@ -40,13 +41,19 @@ namespace Handymand
 
             services.AddCors(o => o.AddPolicy("MyPolicy", builder =>
             {
-                builder.AllowAnyOrigin()
-                       .AllowAnyMethod()
-                       .AllowAnyHeader();
+                builder.WithOrigins(
+                        "http://localhost")
+                        .AllowCredentials()
+                        .AllowAnyHeader()
+                        .SetIsOriginAllowed(_ => true)
+                        .AllowAnyMethod();
             }));
 
 
             services.AddControllers();
+
+            services.AddSignalR().AddMessagePackProtocol();
+
 
             services.AddAuthentication(CertificateAuthenticationDefaults.AuthenticationScheme).AddCertificate();
 
@@ -105,6 +112,7 @@ namespace Handymand
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHub<ChatHub>("/signalr");
             });
 
             if (env.IsDevelopment())

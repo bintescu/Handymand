@@ -14,7 +14,7 @@ namespace Handymand.Services
 
         Task<ServiceResponse<JobOfferDTO>> Create(JobOfferDTO dto);
 
-        JobOfferDTO GetById(int Id);
+        Task<ServiceResponse<JobOfferDTO>> GetById(int Id);
 
         Task SaveJobOffersImages(List<IFormFile> files, int N);
         Task<int> GetTotalNrOfJobOffers();

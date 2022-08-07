@@ -18,14 +18,16 @@ namespace Handymand.Repository.DatabaseRepositories
         {
             _context = context;
         }
-        public JobOffer GetById(int Id)
-        {
-            var result = _table.Where(j => j.Id == Id).FirstOrDefault();
 
-            if(result != null && result.CreationUserId != null)
-            {
-                result.CreationUser = _context.Users.Where(i => i.Id == result.CreationUserId).FirstOrDefault();
-            }
+
+        public async Task<JobOffer> GetById(int Id)
+        {
+
+            var result = await _table.Where(j => j.Id == Id).Include("JobOffersSkills.Skill")
+                                     .Include("CreationUser")
+                                     .Include("City")
+                                     .AsNoTracking()
+                                     .FirstOrDefaultAsync();
 
 
             return result;

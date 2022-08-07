@@ -299,26 +299,34 @@ namespace Handymand.Controllers
 
         }
 
-        [HttpPost("getById")]
-        public IActionResult GetJobOffer([FromBody] DTOforIds dto)
+        [HttpGet("getById/{id}")]
+        public async Task<ActionResult<ServiceResponse<JobOfferDTO>>> GetJobOffer([FromRoute] int? id)
         {
+            var result = new ServiceResponse<JobOfferDTO>();
             try
             {
-                if(dto == null || dto.Id == null)
+                if (id == null || id == 0)
                 {
-                    throw new Exception("A fost transmis in getById din JobOfferController un dto null sau cu Id null !");
+                    return BadRequest("Query Id can not be null or 0!");
                 }
-                var result = _jobOfferService.GetById((int)dto.Id);
-                return Ok(result);
+                else
+                {
+                    result = await _jobOfferService.GetById((int)id);
+                    if (result.Success == true)
+                    {
+                        return Ok(result);
+                    }
+                    else
+                    {
+                        return BadRequest(result);
+                    }
+                }
             }
             catch (Exception e)
             {
-                var resp = new HttpResponseMessage(HttpStatusCode.NotFound)
-                {
-                    Content = new StringContent(e.Message),
-                    ReasonPhrase = "Server Error"
-                };
-                throw new System.Web.Http.HttpResponseException(resp);
+                result.Message = e.Message;
+                result.Success = false;
+                return result;
 
             }
         }
