@@ -97,9 +97,9 @@ namespace Handymand.Services
             dto.FirstName = user.FirstName;
             dto.LastName = user.LastName;
             dto.Email = user.Email;
-            dto.Address = user.Address;
+            dto.Address = user.Address != null ? user.Address : "";
             dto.AboutMe = user.AboutMe;
-            dto.Phone = user.Phone;
+            dto.Phone = user.Phone != null ? user.Phone : "";
             dto.Title = user.Title;
             dto.WalletAddress = user.WalletAddress;
             dto.Amount = user.Amount;
@@ -549,6 +549,21 @@ namespace Handymand.Services
             }
 
             return Convert.ToBase64String(array);
+        }
+
+        public async Task<UserInfoBarDTO> GetUserInfoBar(int id)
+        {
+            var OpenedContracts = await _userRepository.GetOpenedContracts(id);
+            var ClosedContracts = await _userRepository.GetClosedContracts(id);
+            var OpenedOffers = await _userRepository.GetOpenedOffers(id);
+            var OpenedJobOffers = await _userRepository.GetOpenedJobOffers(id);
+
+            var result = new UserInfoBarDTO();
+            result.OpenedContracts = OpenedContracts;
+            result.ClosedContracts = ClosedContracts;
+            result.OpenedOffers = OpenedOffers;
+            result.OpenedJobOffers = OpenedJobOffers;
+            return result;
         }
     }
 }

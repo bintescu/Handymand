@@ -70,12 +70,13 @@ namespace Handymand
             services.AddTransient<IClientRepository, ClientRepository>();
             services.AddTransient<IFreelancerRepository, FreelancerRepository>();
             services.AddTransient<IJobOfferRepository, JobOfferRepository>();
-
+            services.AddTransient<IOffersRepository, OffersRepository>();
 
             services.AddTransient<IJobOfferService, JobOfferService>();
             services.AddTransient<IContractService, ContractService>();
             services.AddTransient<IUserService, UserService>();
             services.AddTransient<ISkillService, SkillService>();
+            services.AddTransient<IOffersService, OffersService>();
 
 
             services.AddScoped<IJWTUtils, JWTUtils>();

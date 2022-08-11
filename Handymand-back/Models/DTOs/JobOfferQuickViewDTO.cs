@@ -7,9 +7,14 @@ namespace Handymand.Models.DTOs
 {
     public class JobOfferQuickViewDTO
     {
+        public int Id { get; set; }
         public string Title { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
+        public DateTime DateCreated { get; set; }
+
+        public int CreationUserId { get; set; }
+        public string CreationUserName { get; set; }
 
     }
 }

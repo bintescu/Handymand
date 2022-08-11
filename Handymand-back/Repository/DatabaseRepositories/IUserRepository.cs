@@ -20,6 +20,10 @@ namespace Handymand.Repository.DatabaseRepositories
 
         Task<User> GetByEmail(string email);
 
-       // Task<User> UpdateUser(User userForUpdate, User newVariant);
+        Task<int>  GetOpenedContracts(int id);
+        Task<int>  GetClosedContracts(int id);
+        Task<int>  GetOpenedOffers(int id);
+        Task<int>  GetOpenedJobOffers(int id);
+        // Task<User> UpdateUser(User userForUpdate, User newVariant);
     }
 }

@@ -13,5 +13,6 @@ namespace Handymand.Models.DTOs
         public IList<SkillShortDTO> Skills { get; set; }
         public int? lowPriceRange { get; set; }
         public int? highPriceRange { get; set; }
+        public bool myJobOffers { get; set; }
     }
 }

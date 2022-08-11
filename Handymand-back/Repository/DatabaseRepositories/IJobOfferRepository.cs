@@ -12,8 +12,19 @@ namespace Handymand.Repository.DatabaseRepositories
     {
         Task<JobOffer> GetById(int Id);
         Task AddSkillsOnThisJobOfferAsync(int id, List<int> IdSkills);
-        Task<List<JobOffer>> GetAllJobOffersInclude(int skip, int noElements, FilterJobOffersDTO filter);
-        Task<int> GetTotalNrOfJobOffers();
+        Task<List<JobOffer>> GetAllJobOffersInclude(int skip, int noElements, FilterJobOffersDTO filter, int? userId = null);
+        Task<int> GetTotalNrOfJobOffers(FilterJobOffersDTO filter, int? userId = null);
         Task<List<CityShortDTO>> GetAllCities();
+        Task<List<JobOffer>> GetAllActiveJobOffersForLoggedIn(int id);
+        Task<List<JobOffer>> GetAllPendingJobOffersForLoggedInOrderByDateCreate(int id);
+        Task<List<JobOffer>> GetAllClosedForFeedback(int id);
+
+
+        Task<Contract> CloseContract(int idJobOffer, int loggedinId,int feedbackVal);
+        Task<Feedback> SendFeedback(int idJobOffer, int loggedinId, int feedbackVal);
+
+        Task<bool> DeleteJobOffer(int idJobOffer, int loggedinId);
+        Task<string> GetCustomerName(int idJobOffer);
+        Task<string> GetFreelancerName(int idJobOffer);
     }
 }

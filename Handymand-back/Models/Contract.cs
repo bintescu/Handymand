@@ -8,20 +8,18 @@ namespace Handymand.Models
 {
     public class Contract: BaseEntity
     {
-        public int IdCreationUser { get; set;}
+        public int CreationUserId { get; set;}
         public User CreationUser { get; set;}
 
-        public int? IdRefferedUser { get; set; }
+        public int RefferedUserId { get; set; }
+        public User RefferedUser { get; set; }
 
-        public int ExpectedDurationInHours { get; set; }
+        public double PaymentAmountPerHour { get; set; }
 
-        public string Description { get; set; }
+        public int JobOfferId { get; set; }
+        public JobOffer JobOffer { get; set; }
 
-        public ICollection<ContractsSkills> ContractSkills { get; set; }
-
-        public decimal PaymentAmount { get; set; }
-
-        public int ComplexityGrade { get; set; }
+        public bool Valid { get; set; }
 
 
     }

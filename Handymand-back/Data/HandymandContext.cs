@@ -21,14 +21,14 @@ namespace Handymand.Data
         public DbSet<FreelancersSkills> FreelancersSkills { get; set; }
 
         public DbSet<Contract> Contracts { get; set; }
-        public DbSet<ContractsSkills> ContractsSkills { get; set; }
 
         public DbSet<JobOffer> JobOffer { get; set; }
         public DbSet<JobOffersSkills> JobOffersSkills { get; set; }
+        public DbSet<Offer> Offers { get; set; }
 
         public DbSet<City> Cities { get; set; }
 
-/*        public DbSet<Feedback> Feedbacks { get; set; }*/
+        public DbSet<Feedback> Feedbacks { get; set; }
 
         public HandymandContext(DbContextOptions<HandymandContext> options) : base(options)
         {
@@ -40,28 +40,44 @@ namespace Handymand.Data
 
             //Properties
 
-            modelBuilder.Entity<User>().Property(u => u.Amount).HasPrecision(12, 2);
+            //modelBuilder.Entity<User>().Property(u => u.Amount).HasPrecision(12, 2);
 
-            modelBuilder.Entity<Contract>().Property(u => u.PaymentAmount).HasPrecision(12, 2);
+            modelBuilder.Entity<Contract>().Property(u => u.PaymentAmountPerHour).HasColumnType("float");
+
+            modelBuilder.Entity<Contract>()
+                .HasOne(c => c.JobOffer).WithOne(j => j.Contract)
+                .HasForeignKey<Contract>(c => c.JobOfferId);
+
+            modelBuilder.Entity<Feedback>()
+                .HasOne(f => f.JobOffer).WithOne(j => j.Feedback)
+                .HasForeignKey<Feedback>(f => f.JobOfferId);
+
             //One to Many
+
+            modelBuilder.Entity<Feedback>()
+                .HasOne(f => f.CreationUser).WithMany(u => u.CreatedFeedbacks).HasForeignKey(f => f.CreationUserId);
+
+            modelBuilder.Entity<Feedback>()
+                 .HasOne(f => f.RefferedUser).WithMany(u => u.ReceivedFeedback).HasForeignKey(f => f.RefferedUserId);
+
 
 
             modelBuilder.Entity<Contract>()
-                .HasOne(c => c.CreationUser).WithMany(u => u.CreatedContracts).HasForeignKey(c => c.IdCreationUser);
+                .HasOne(c => c.CreationUser).WithMany(u => u.CreatedContracts).HasForeignKey(c => c.CreationUserId);
 
+            modelBuilder.Entity<Contract>()
+                .HasOne(c => c.RefferedUser).WithMany(u => u.AcceptedContracts).HasForeignKey(c => c.RefferedUserId);
 
             modelBuilder.Entity<JobOffer>()
                 .HasOne(j => j.City)
                 .WithMany(c => c.JobOffers)
                 .HasForeignKey(j => j.CityId);
 
+            modelBuilder.Entity<JobOffer>()
+                .HasMany(j => j.Offers)
+                .WithOne(o => o.JobOffer)
+                .HasForeignKey(o => o.JobOfferId);
 
-/*            modelBuilder.Entity<Contract>()
-                .HasOne(c => c.RefferedUser).WithMany(u => u.SubscribedContracts).HasForeignKey(c => c.IdRefferedUser);
-*/
-
-/*            modelBuilder.Entity<Feedback>()
-                .HasOne(f => f.CreationUser).WithMany(u => u.SentFeedbacks).HasForeignKey(f => f.IdCreationUser);*/
 
             //One to One
 
@@ -103,20 +119,6 @@ namespace Handymand.Data
                 .HasOne<Skill>(fs => fs.Skill).WithMany(s => s.FreelancersSkills)
                 .HasForeignKey(fs => fs.IdSkill);
 
-
-            modelBuilder.Entity<ContractsSkills>().HasKey(key => new 
-            { 
-                key.IdContract,
-                key.IdSkill
-            });
-
-            modelBuilder.Entity<ContractsSkills>()
-                .HasOne<Contract>(cs => cs.Contract).WithMany(c => c.ContractSkills)
-                .HasForeignKey(cs => cs.IdContract);
-
-            modelBuilder.Entity<ContractsSkills>()
-                .HasOne<Skill>(cs => cs.Skill).WithMany(s => s.ContractSkills)
-                .HasForeignKey(cs => cs.IdSkill);
 
 
             modelBuilder.Entity<Skill>(u =>

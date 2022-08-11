@@ -25,6 +25,7 @@ namespace Handymand.Models.DTOs
         public int? CityId { get; set; }
         public CityShortDTO City { get; set; }
         public List<IFormFile> Files { get; set; }
+        public bool Available { get; set; }
 
         public override string ToString()
         {

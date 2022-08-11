@@ -27,15 +27,30 @@ namespace Handymand.Controllers
             _jobOfferService = jobOfferService;
         }
 
-        [HttpGet("total")]
-        public async Task<ActionResult<ServiceResponse<int>>> GetTotalNrOfJobOffers()
+        [HttpPost("total")]
+        public async Task<ActionResult<ServiceResponse<int>>> GetTotalNrOfJobOffers([FromBody] FilterJobOffersDTO filter)
         {
             var result = new ServiceResponse<int>();
 
             try
             {
-                int number = await _jobOfferService.GetTotalNrOfJobOffers();
-                result.Data = number;
+                if (filter.myJobOffers)
+                {
+                    int loggedInId = Convert.ToInt32(HttpContext.User.FindFirstValue("id"));
+                    if (loggedInId == 0)
+                    {
+                        return BadRequest("User with that id doesn`t exist!");
+                    }
+
+                    int number = await _jobOfferService.GetTotalNrOfJobOffers(filter,loggedInId);
+                    result.Data = number;
+                }
+                else
+                {
+                    int number = await _jobOfferService.GetTotalNrOfJobOffers(filter);
+                    result.Data = number;
+                }
+
             }
             catch (Exception e)
             {
@@ -48,6 +63,252 @@ namespace Handymand.Controllers
             return Ok(result);
         }
 
+        [Authorization(Role.User, Role.Admin)]
+        [HttpGet("getallclosedforfeedback")]
+        public async Task<ActionResult<ServiceResponse<List<JobOfferQuickViewDTO>>>> GetAllClosedForFeedback()
+        {
+            var response = new ServiceResponse<List<JobOfferQuickViewDTO>>();
+
+            try
+            {
+                int id = Convert.ToInt32(HttpContext.User.FindFirstValue("id"));
+                if (id == 0)
+                {
+                    return BadRequest("Logged in user is null or empty");
+                }
+                else
+                {
+
+                    var allJobOffers = await _jobOfferService.GetAllClosedForFeedback(id);
+                    response.Data = allJobOffers;
+                    return Ok(response);
+                }
+            }
+            catch(Exception e)
+            {
+                response.Success = false;
+                response.Message = e.Message;
+                return BadRequest(response);
+            }
+        }
+
+
+        [Authorization(Role.User, Role.Admin)]
+        [HttpGet("getallforloggedin")]
+        public async Task<ActionResult<ServiceResponse<List<JobOfferQuickViewDTO>>>> GetAllActiveJobOffers()
+        {
+            int id = Convert.ToInt32(HttpContext.User.FindFirstValue("id"));
+            if (id == 0)
+            {
+                return BadRequest("Logged in user is null or empty");
+            }
+            else
+            {
+                var response = new ServiceResponse<List<JobOfferQuickViewDTO>>();
+                try
+                {
+                    var allJobOffers = await _jobOfferService.GetAllActiveJobOffersForLoggedIn(id);
+                    response.Data = allJobOffers;
+                }
+                catch (Exception e)
+                {
+                    response.Success = false;
+                    response.Message = e.Message;
+                    return BadRequest(response);
+                }
+
+                return Ok(response);
+            }
+        }
+
+
+        [Authorization(Role.User, Role.Admin)]
+        [HttpGet("getallpendingforloggedin")]
+        public async Task<ActionResult<ServiceResponse<List<JobOfferQuickViewDTO>>>> GetAllPendingJobOffers()
+        {
+            int id = Convert.ToInt32(HttpContext.User.FindFirstValue("id"));
+            if (id == 0)
+            {
+                return BadRequest("Logged in user is null or empty");
+            }
+            else
+            {
+                var response = new ServiceResponse<List<JobOfferQuickViewDTO>>();
+                try
+                {
+                    var allJobOffers = await _jobOfferService.GetAllPendingJobOffersForLoggedInOrderByDateCreate(id);
+                    response.Data = allJobOffers;
+                }
+                catch (Exception e)
+                {
+                    response.Success = false;
+                    response.Message = e.Message;
+                    return BadRequest(response);
+                }
+
+                return Ok(response);
+            }
+        }
+
+        [Authorization(Role.User, Role.Admin)]
+        [HttpPost("deletejoboffer/{idJobOffer}")]
+        public async Task<ActionResult<ServiceResponse<bool>>> DeleteJobOffer([FromRoute] int idJobOffer)
+        {
+            var response = new ServiceResponse<bool>();
+
+            try
+            {
+                int loggedInId = Convert.ToInt32(HttpContext.User.FindFirstValue("id"));
+                if (loggedInId == 0)
+                {
+                    return BadRequest("Loggedin user id doesn`t exist!");
+                }
+
+                var result = await _jobOfferService.DeleteJobOffer(idJobOffer, loggedInId);
+                if (result == false)
+                {
+                    response.Success = false;
+                    response.Message = "Offers for this job was not deleted!";
+                }
+                else
+                {
+                    response.Success = true;
+                    response.Data = true;
+                }
+
+
+            }
+            catch (Exception e)
+            {
+                response.Success = false;
+                response.Message = e.Message;
+                return BadRequest(response);
+            }
+
+            return Ok(response);
+
+        }
+
+        [Authorization(Role.User, Role.Admin)]
+        [HttpGet("getcustomername/{idJobOffer}")]
+        public async Task<ActionResult<ServiceResponse<string>>> GetCustomerName([FromRoute] int idJobOffer)
+        {
+            var response = new ServiceResponse<string>();
+
+            try
+            {
+                var name = await _jobOfferService.GetCustomerName(idJobOffer);
+                response.Data = name;
+                return Ok(response);
+            }catch(Exception e)
+            {
+                response.Success = false;
+                response.Message = e.Message;
+                return BadRequest(response);
+            }
+        }
+
+        [Authorization(Role.User, Role.Admin)]
+        [HttpGet("getfreelancername/{idJobOffer}")]
+        public async Task<ActionResult<ServiceResponse<string>>> GetFreelancerName([FromRoute] int idJobOffer)
+        {
+            var response = new ServiceResponse<string>();
+
+            try
+            {
+                var name = await _jobOfferService.GetFreelancerName(idJobOffer);
+                response.Data = name;
+                return Ok(response);
+            }
+            catch (Exception e)
+            {
+                response.Success = false;
+                response.Message = e.Message;
+                return BadRequest(response);
+            }
+        }
+
+        [Authorization(Role.User, Role.Admin)]
+        [HttpPost("sendfeedback/{idJobOffer}")]
+        public async Task<ActionResult<ServiceResponse<bool>>> SendFeedback([FromRoute] int idJobOffer, [FromQuery] int feedbackVal)
+        {
+            var response = new ServiceResponse<bool>();
+
+            try
+            {
+                int loggedInId = Convert.ToInt32(HttpContext.User.FindFirstValue("id"));
+                if (loggedInId == 0)
+                {
+                    return BadRequest("Loggedin user id doesn`t exist!");
+                }
+
+                var result = await _jobOfferService.SendFeedback(idJobOffer, loggedInId, feedbackVal);
+                if (result == false)
+                {
+                    response.Success = false;
+                    response.Message = "There is no contract for this Job Offer";
+                }
+                else
+                {
+                    response.Success = true;
+                    response.Data = true;
+                }
+
+
+            }
+            catch (Exception e)
+            {
+                response.Success = false;
+                response.Message = e.Message;
+                return BadRequest(response);
+            }
+
+            return Ok(response);
+
+        }
+
+
+
+
+        [Authorization(Role.User, Role.Admin)]
+        [HttpPost("closecontract/{idJobOffer}")]
+        public async Task<ActionResult<ServiceResponse<bool>>> CloseContract([FromRoute] int idJobOffer, [FromQuery] int feedbackVal)
+        {
+            var response = new ServiceResponse<bool>();
+
+            try
+            {
+                int loggedInId = Convert.ToInt32(HttpContext.User.FindFirstValue("id"));
+                if (loggedInId == 0)
+                {
+                    return BadRequest("Loggedin user id doesn`t exist!");
+                }
+
+                var result = await _jobOfferService.CloseContract(idJobOffer, loggedInId, feedbackVal);
+                if(result == false)
+                {
+                    response.Success = false;
+                    response.Message = "There is no contract for this Job Offer";
+                }
+                else
+                {
+                    response.Success = true;
+                    response.Data = true;
+                }
+
+
+            }
+            catch(Exception e)
+            {
+                response.Success = false;
+                response.Message = e.Message;
+                return BadRequest(response);
+            }
+
+            return Ok(response);
+
+        }
+
 
         [HttpPost("allJobOffers")]
         public async Task<ActionResult<ServiceResponse<IEnumerable<JobOfferDTO>>>> GetAllJobOffer([FromQuery] int pageNr, [FromQuery] int noElements , [FromBody] FilterJobOffersDTO filter)
@@ -57,8 +318,23 @@ namespace Handymand.Controllers
 
             try
             {
-                var jobOffers = await _jobOfferService.GetAllJobOffers(pageNr,noElements, filter);
-                result.Data = jobOffers;
+                if (filter.myJobOffers)
+                {
+                    int loggedInId = Convert.ToInt32(HttpContext.User.FindFirstValue("id"));
+                    if (loggedInId == 0)
+                    {
+                        return BadRequest("User with that id doesn`t exist!");
+                    }
+
+                    var jobOffers = await _jobOfferService.GetAllJobOffers(pageNr, noElements, filter, loggedInId);
+                    result.Data = jobOffers;
+                }
+                else
+                {
+                    var jobOffers = await _jobOfferService.GetAllJobOffers(pageNr, noElements, filter);
+                    result.Data = jobOffers;
+                }
+
             }
             catch (Exception e)
             {
@@ -299,6 +575,7 @@ namespace Handymand.Controllers
 
         }
 
+        [Authorization(Role.User, Role.Admin)]
         [HttpGet("getById/{id}")]
         public async Task<ActionResult<ServiceResponse<JobOfferDTO>>> GetJobOffer([FromRoute] int? id)
         {
@@ -322,11 +599,19 @@ namespace Handymand.Controllers
                     }
                 }
             }
+            catch(EntryPointNotFoundException e)
+            {
+                return NotFound(e.Message);
+            }
+            catch(NullReferenceException e)
+            {
+                return StatusCode(410);
+            }
             catch (Exception e)
             {
                 result.Message = e.Message;
                 result.Success = false;
-                return result;
+                return BadRequest(result);
 
             }
         }

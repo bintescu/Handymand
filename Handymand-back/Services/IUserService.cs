@@ -16,6 +16,7 @@ namespace Handymand.Services
 
         //GetAll
         Task<List<UserDTO>> GetAllUsers();
+        Task<UserInfoBarDTO> GetUserInfoBar(int id);
 
         //GetById
 

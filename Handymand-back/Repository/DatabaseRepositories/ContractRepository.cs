@@ -18,7 +18,7 @@ namespace Handymand.Repository.DatabaseRepositories
 
         public List<Contract> GetAllWithInclude()
         {
-            return _table.Include(x => x.ContractSkills)
+            return _table
                 .Include(x => x.CreationUser)
                 .ToList();
         }
@@ -31,7 +31,6 @@ namespace Handymand.Repository.DatabaseRepositories
         public Contract GetByIdIncludingAll(int Id)
         {
             return _table.Where(i => i.Id == Id)
-                .Include(x => x.ContractSkills)
                 .Include(x => x.CreationUser).FirstOrDefault();
 
         }

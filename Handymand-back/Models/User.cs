@@ -7,14 +7,14 @@ using System.Threading.Tasks;
 
 namespace Handymand.Models
 {
-    public class User: BaseEntity
+    public class User : BaseEntity
     {
         public string Username { get; set; }
         public string Email { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string WalletAddress { get; set; }
-        public decimal Amount { get; set; } 
+        public double Amount { get; set; }
         public string AboutMe { get; set; }
         public string Address { get; set; }
         public string Phone { get; set; }
@@ -31,6 +31,11 @@ namespace Handymand.Models
         public Role Role { get; set; }
         //public ICollection<Feedback> SentFeedbacks { get; set; }
         public ICollection<Contract> CreatedContracts { get; set; }
+
+        public ICollection<Contract> AcceptedContracts { get; set; }
+
+        public ICollection<Feedback> CreatedFeedbacks { get; set; }
+        public ICollection<Feedback> ReceivedFeedback { get; set; }
 
         public ICollection<JobOffer> CreatedJobOffers { get; set; }
 

@@ -8,16 +8,19 @@ namespace Handymand.Models
 {
     public class Feedback:BaseEntity
     {
-        public int IdCreationUser { get; set; }
-        //public User CreationUser { get; set; }
+        public int CreationUserId { get; set; }
+        public User CreationUser { get; set; }
 
-        public int? IdRefferedUser { get; set; }
+        public int  RefferedUserId { get; set; }
+        public User RefferedUser { get; set; }
 
-        public string Text { get; set; }
-        
-        public double Grade { get; set; }
+        public int JobOfferId { get; set; }
+        public JobOffer JobOffer { get; set; }
 
-        public bool AsClient { get; set; }
+        public int Grade { get; set; }
+
+        public bool FromClientToFreelancer { get; set; }
+        public bool FromFreelancerToClient { get; set; }
 
     }
 }

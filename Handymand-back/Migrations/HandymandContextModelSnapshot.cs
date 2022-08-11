@@ -187,7 +187,7 @@ namespace Handymand.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int>("ComplexityGrade")
+                    b.Property<int>("CreationUserId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("DateCreated")
@@ -196,42 +196,71 @@ namespace Handymand.Migrations
                     b.Property<DateTime?>("DateModified")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("ExpectedDurationInHours")
+                    b.Property<int>("JobOfferId")
                         .HasColumnType("int");
 
-                    b.Property<int>("IdCreationUser")
+                    b.Property<double>("PaymentAmountPerHour")
+                        .HasColumnType("float");
+
+                    b.Property<int>("RefferedUserId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("IdRefferedUser")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("PaymentAmount")
-                        .HasPrecision(12, 2)
-                        .HasColumnType("decimal(12,2)");
+                    b.Property<bool>("Valid")
+                        .HasColumnType("bit");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("IdCreationUser");
+                    b.HasIndex("CreationUserId");
+
+                    b.HasIndex("JobOfferId")
+                        .IsUnique();
+
+                    b.HasIndex("RefferedUserId");
 
                     b.ToTable("Contracts");
                 });
 
-            modelBuilder.Entity("Handymand.Models.ContractsSkills", b =>
+            modelBuilder.Entity("Handymand.Models.Feedback", b =>
                 {
-                    b.Property<int>("IdContract")
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("CreationUserId")
                         .HasColumnType("int");
 
-                    b.Property<int>("IdSkill")
+                    b.Property<DateTime>("DateCreated")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DateModified")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("FromClientToFreelancer")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("FromFreelancerToClient")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("Grade")
                         .HasColumnType("int");
 
-                    b.HasKey("IdContract", "IdSkill");
+                    b.Property<int>("JobOfferId")
+                        .HasColumnType("int");
 
-                    b.HasIndex("IdSkill");
+                    b.Property<int>("RefferedUserId")
+                        .HasColumnType("int");
 
-                    b.ToTable("ContractsSkills");
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreationUserId");
+
+                    b.HasIndex("JobOfferId")
+                        .IsUnique();
+
+                    b.HasIndex("RefferedUserId");
+
+                    b.ToTable("Feedbacks");
                 });
 
             modelBuilder.Entity("Handymand.Models.Freelancer", b =>
@@ -289,6 +318,9 @@ namespace Handymand.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<bool>("Available")
+                        .HasColumnType("bit");
+
                     b.Property<int?>("CityId")
                         .HasColumnType("int");
 
@@ -343,6 +375,43 @@ namespace Handymand.Migrations
                     b.ToTable("JobOffersSkills");
                 });
 
+            modelBuilder.Entity("Handymand.Models.Offer", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<bool>("Available")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("CreationUserId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("DateCreated")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DateModified")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("JobOfferId")
+                        .HasColumnType("int");
+
+                    b.Property<double>("PaymentAmount")
+                        .HasColumnType("float");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreationUserId");
+
+                    b.HasIndex("JobOfferId");
+
+                    b.ToTable("Offers");
+                });
+
             modelBuilder.Entity("Handymand.Models.Skill", b =>
                 {
                     b.Property<int>("Id")
@@ -394,9 +463,8 @@ namespace Handymand.Migrations
                     b.Property<string>("Address")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<decimal>("Amount")
-                        .HasPrecision(12, 2)
-                        .HasColumnType("decimal(12,2)");
+                    b.Property<double>("Amount")
+                        .HasColumnType("float");
 
                     b.Property<DateTime?>("Birthday")
                         .HasColumnType("datetime2");
@@ -457,30 +525,54 @@ namespace Handymand.Migrations
                 {
                     b.HasOne("Handymand.Models.User", "CreationUser")
                         .WithMany("CreatedContracts")
-                        .HasForeignKey("IdCreationUser")
+                        .HasForeignKey("CreationUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Handymand.Models.JobOffer", "JobOffer")
+                        .WithOne("Contract")
+                        .HasForeignKey("Handymand.Models.Contract", "JobOfferId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Handymand.Models.User", "RefferedUser")
+                        .WithMany("AcceptedContracts")
+                        .HasForeignKey("RefferedUserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("CreationUser");
+
+                    b.Navigation("JobOffer");
+
+                    b.Navigation("RefferedUser");
                 });
 
-            modelBuilder.Entity("Handymand.Models.ContractsSkills", b =>
+            modelBuilder.Entity("Handymand.Models.Feedback", b =>
                 {
-                    b.HasOne("Handymand.Models.Contract", "Contract")
-                        .WithMany("ContractSkills")
-                        .HasForeignKey("IdContract")
+                    b.HasOne("Handymand.Models.User", "CreationUser")
+                        .WithMany("CreatedFeedbacks")
+                        .HasForeignKey("CreationUserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Handymand.Models.Skill", "Skill")
-                        .WithMany("ContractSkills")
-                        .HasForeignKey("IdSkill")
+                    b.HasOne("Handymand.Models.JobOffer", "JobOffer")
+                        .WithOne("Feedback")
+                        .HasForeignKey("Handymand.Models.Feedback", "JobOfferId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Contract");
+                    b.HasOne("Handymand.Models.User", "RefferedUser")
+                        .WithMany("ReceivedFeedback")
+                        .HasForeignKey("RefferedUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.Navigation("Skill");
+                    b.Navigation("CreationUser");
+
+                    b.Navigation("JobOffer");
+
+                    b.Navigation("RefferedUser");
                 });
 
             modelBuilder.Entity("Handymand.Models.Freelancer", b =>
@@ -547,6 +639,25 @@ namespace Handymand.Migrations
                     b.Navigation("Skill");
                 });
 
+            modelBuilder.Entity("Handymand.Models.Offer", b =>
+                {
+                    b.HasOne("Handymand.Models.User", "CreationUser")
+                        .WithMany()
+                        .HasForeignKey("CreationUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Handymand.Models.JobOffer", "JobOffer")
+                        .WithMany("Offers")
+                        .HasForeignKey("JobOfferId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CreationUser");
+
+                    b.Navigation("JobOffer");
+                });
+
             modelBuilder.Entity("Handymand.Models.Skill", b =>
                 {
                     b.HasOne("Handymand.Models.User", "CreationUser")
@@ -567,11 +678,6 @@ namespace Handymand.Migrations
                     b.Navigation("JobOffers");
                 });
 
-            modelBuilder.Entity("Handymand.Models.Contract", b =>
-                {
-                    b.Navigation("ContractSkills");
-                });
-
             modelBuilder.Entity("Handymand.Models.Freelancer", b =>
                 {
                     b.Navigation("FreelancersSkills");
@@ -579,13 +685,17 @@ namespace Handymand.Migrations
 
             modelBuilder.Entity("Handymand.Models.JobOffer", b =>
                 {
+                    b.Navigation("Contract");
+
+                    b.Navigation("Feedback");
+
                     b.Navigation("JobOffersSkills");
+
+                    b.Navigation("Offers");
                 });
 
             modelBuilder.Entity("Handymand.Models.Skill", b =>
                 {
-                    b.Navigation("ContractSkills");
-
                     b.Navigation("FreelancersSkills");
 
                     b.Navigation("JobOffersSkills");
@@ -593,13 +703,19 @@ namespace Handymand.Migrations
 
             modelBuilder.Entity("Handymand.Models.User", b =>
                 {
+                    b.Navigation("AcceptedContracts");
+
                     b.Navigation("ClientAccount");
 
                     b.Navigation("CreatedContracts");
 
+                    b.Navigation("CreatedFeedbacks");
+
                     b.Navigation("CreatedJobOffers");
 
                     b.Navigation("FreelancerAccount");
+
+                    b.Navigation("ReceivedFeedback");
                 });
 #pragma warning restore 612, 618
         }

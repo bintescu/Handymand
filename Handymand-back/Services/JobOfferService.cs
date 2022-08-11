@@ -61,9 +61,9 @@ namespace Handymand.Services
             return dto;
         }
 
-        public async Task<int> GetTotalNrOfJobOffers()
+        public async Task<int> GetTotalNrOfJobOffers(FilterJobOffersDTO filter, int? userId = null)
         {
-            return await _jobOfferRepository.GetTotalNrOfJobOffers();
+            return await _jobOfferRepository.GetTotalNrOfJobOffers(filter,userId);
         }
 
 
@@ -95,13 +95,13 @@ namespace Handymand.Services
         }
 
 
-        public async Task<List<JobOfferDTO>> GetAllJobOffers(int pageNr, int noElements, FilterJobOffersDTO filter)
+        public async Task<List<JobOfferDTO>> GetAllJobOffers(int pageNr, int noElements, FilterJobOffersDTO filter, int? userId = null)
         {
 
             
             int skip = (pageNr) * noElements;
 
-            var initialList = await _jobOfferRepository.GetAllJobOffersInclude(skip,noElements,filter);
+            var initialList = await _jobOfferRepository.GetAllJobOffersInclude(skip,noElements,filter, userId);
 
             var result = new List<JobOfferDTO>();
 
@@ -155,10 +155,11 @@ namespace Handymand.Services
             var response = new ServiceResponse<JobOfferDTO>();
 
             JobOffer jobOffer = ConvertFromDTO(dto);
-
+            jobOffer.Available = true;
             
 
             jobOffer.DateCreated = DateTime.Now;
+            jobOffer.NoImages = dto.Files.Count;
 
             await _jobOfferRepository.CreateAsync(jobOffer);
             await _jobOfferRepository.SaveAsync();
@@ -255,7 +256,8 @@ namespace Handymand.Services
                     LowPriceRange = initialQuery.LowPriceRange,
                     HighPriceRange = initialQuery.HighPriceRange,
                     DateCreated = initialQuery.DateCreated,
-                    NoImages = initialQuery.NoImages
+                    NoImages = initialQuery.NoImages,
+                    Available = initialQuery.Available
                 };
 
                 if (initialQuery.JobOffersSkills.Count > 0)
@@ -295,6 +297,102 @@ namespace Handymand.Services
             return await _jobOfferRepository.GetAllCities();
         }
 
+        public async Task<List<JobOfferQuickViewDTO>> GetAllActiveJobOffersForLoggedIn(int id)
+        {
+            var jobList = await _jobOfferRepository.GetAllActiveJobOffersForLoggedIn(id);
 
+            return jobList.Select(jo => new JobOfferQuickViewDTO()
+            {
+                Id = jo.Id,
+                Title = jo.Title,
+                DateCreated = jo.DateCreated
+            }).ToList();
+
+
+        }
+
+        public async Task<List<JobOfferQuickViewDTO>> GetAllPendingJobOffersForLoggedInOrderByDateCreate(int id)
+        {
+            var list = await _jobOfferRepository.GetAllPendingJobOffersForLoggedInOrderByDateCreate(id);
+
+            var result = list.Where(jo => jo.Contract.Valid == true).Select(jo => new JobOfferQuickViewDTO()
+            {
+                Id = jo.Id,
+                DateCreated = jo.DateCreated,
+                Title = jo.Title
+            }).ToList();
+
+            return result;
+
+        }
+
+        public async Task<bool> CloseContract(int idJoboffer, int loggedinId, int feedbackVal)
+        {
+            var result = await _jobOfferRepository.CloseContract(idJoboffer, loggedinId,feedbackVal);
+
+            if(result == null)
+            {
+                return false;
+            }
+            
+            if(result.Valid == true)
+            {
+                return false;
+            }
+
+            return true;
+            
+        }
+
+        public async Task<bool> SendFeedback(int idJoboffer, int loggedinId, int feedbackVal)
+        {
+            var result = await _jobOfferRepository.SendFeedback(idJoboffer, loggedinId, feedbackVal);
+
+            if (result == null)
+            {
+                return false;
+            }
+
+            if (result.CreationUserId != loggedinId)
+            {
+                return false;
+            }
+
+            return true;
+
+        }
+
+        public async Task<bool> DeleteJobOffer(int idJoboffer, int loggedinId)
+        {
+            return await _jobOfferRepository.DeleteJobOffer(idJoboffer, loggedinId);
+        }
+
+        public async Task<string> GetCustomerName(int idJobOffer)
+        {
+            return await _jobOfferRepository.GetCustomerName(idJobOffer);
+        }
+
+        public async Task<string> GetFreelancerName(int idJobOffer)
+        {
+            return await _jobOfferRepository.GetFreelancerName(idJobOffer);
+        }
+
+        public async Task<List<JobOfferQuickViewDTO>> GetAllClosedForFeedback(int id)
+        {
+            var final_JobOffers =  await _jobOfferRepository.GetAllClosedForFeedback(id);
+
+            var response = final_JobOffers.Where(jo => jo.CreationUserId != null).Select(jo => new JobOfferQuickViewDTO()
+            {
+                Id = jo.Id,
+                CreationUserId = (int)jo.CreationUserId,
+                CreationUserName = jo.CreationUser != null ? jo.CreationUser.LastName + " " + jo.CreationUser.FirstName : null,
+                Title = jo.Title,
+                DateCreated = jo.DateCreated,
+
+
+            }).ToList();
+
+            return response;
+        }
     }
 }

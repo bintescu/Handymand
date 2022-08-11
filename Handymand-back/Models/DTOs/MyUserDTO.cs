@@ -12,7 +12,7 @@ namespace Handymand.Models.DTOs
         public string Password { get; set; }
         public string Location { get; set; }
         public string WalletAddress { get; set; }
-        public decimal Amount { get; set; }
+        public double Amount { get; set; }
         public string AboutMe { get; set; }
         public string Address { get; set; }
         public string Phone { get; set; }

@@ -214,6 +214,37 @@ namespace Handymand.Controllers
 
 
 
+
+        [Authorization(Role.User, Role.Admin)]
+        [HttpGet("getuserinfobar/{id}")]
+        public async Task<ActionResult<ServiceResponse<UserInfoBarDTO>>> GetUserInfoBar([FromRoute] int id)
+        {
+            var response = new ServiceResponse<UserInfoBarDTO>();
+            try
+            {
+                if (id == 0)
+                {
+                    return BadRequest();
+                }
+                else
+                {
+                    var result = await _userService.GetUserInfoBar(id);
+                    response.Data = result;
+                    return Ok(response);
+                    
+                }
+
+            }
+            catch (Exception e)
+            {
+                response.Success = false;
+                response.Message = e.Message;
+                return BadRequest(response);
+            }
+
+        }
+
+
         [Authorization(Role.User, Role.Admin)]
         [HttpGet("myuserprofileImage")]
         public async Task<ActionResult<ServiceResponse<byte[]>>> GetMyUserProfileImage()

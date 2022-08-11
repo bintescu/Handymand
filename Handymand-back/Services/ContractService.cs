@@ -26,18 +26,18 @@ namespace Handymand.Services
             var DTO = new ContractDTO();
 
             DTO.Id = contract.Id;
-            DTO.IdCreationUser = contract.IdCreationUser;
-            var creationUser = _userRepository.FindById(contract.IdCreationUser);
+            DTO.CreationUserId = contract.CreationUserId;
+            var creationUser = _userRepository.FindById(contract.CreationUserId);
             if (creationUser != null)
             {
                 DTO.CreationUserFullName = creationUser.LastName + " " + creationUser.FirstName;
             }
 
-            if (contract.IdRefferedUser != null && contract.IdRefferedUser != 0)
+            if (contract.RefferedUserId != null && contract.RefferedUserId != 0)
             {
-                DTO.IdRefferedUser = contract.IdRefferedUser;
+                DTO.RefferedUserId = contract.RefferedUserId;
 
-                var refferedUser = _userRepository.FindById((int)contract.IdRefferedUser);
+                var refferedUser = _userRepository.FindById((int)contract.RefferedUserId);
 
                 DTO.RefferedUserFullName = refferedUser.LastName + " " + refferedUser.FirstName;
 
@@ -49,9 +49,8 @@ namespace Handymand.Services
 
             DTO.CreationDate = contract.DateCreated;
 
-            DTO.ExpectedDurationInHours = contract.ExpectedDurationInHours;
-            DTO.PaymentAmount = contract.PaymentAmount;
-            DTO.ComplexityGrade = contract.ComplexityGrade;
+            DTO.PaymentAmountPerHour = contract.PaymentAmountPerHour;
+
 
             return DTO;
 
@@ -62,13 +61,11 @@ namespace Handymand.Services
         {
             var result = new Contract();
 
-            result.IdCreationUser = contract.IdCreationUser;
-            result.IdRefferedUser = contract.IdRefferedUser;
-            result.PaymentAmount = contract.PaymentAmount;
-            result.ExpectedDurationInHours = contract.ExpectedDurationInHours;
-            result.Description = contract.Description;
+            result.CreationUserId = contract.CreationUserId;
+            result.RefferedUserId = contract.RefferedUserId;
+            result.PaymentAmountPerHour = contract.PaymentAmountPerHour;
             result.DateCreated = DateTime.Now;
-            result.ComplexityGrade = contract.ComplexityGrade;
+
 
             return result;
         }
@@ -77,17 +74,14 @@ namespace Handymand.Services
         {
             var query = _contractRepository.GetAllWithInclude();
 
-            var result = query.Where(i => i.IdRefferedUser == null || i.IdRefferedUser == 0)
+            var result = query.Where(i => i.RefferedUserId == null || i.RefferedUserId == 0)
                 .Select(i => new ContractDTO()
                 {
                     Id = i.Id,
                     CreationUserFullName = i.CreationUser.LastName + " " + i.CreationUser.FirstName,
-                    Description = i.Description,
                     CreationDate = i.DateCreated,
                     ExpirationDate = i.DateCreated.AddMonths(1),
-                    ComplexityGrade = i.ComplexityGrade,
-                    PaymentAmount = i.PaymentAmount,
-                    ExpectedDurationInHours = i.ExpectedDurationInHours
+                    PaymentAmountPerHour = i.PaymentAmountPerHour,
                 }).ToList();
 
             return result;
@@ -97,17 +91,14 @@ namespace Handymand.Services
         {
             var query = _contractRepository.GetAllWithInclude();
 
-            var result = query.Where(i => i.IdRefferedUser == null || i.IdRefferedUser == 0)
+            var result = query.Where(i => i.RefferedUserId == 0)
                 .Select(i => new ContractDTO()
                 {
                     Id = i.Id,
                     CreationUserFullName = i.CreationUser.LastName + " " + i.CreationUser.FirstName,
-                    Description = i.Description,
                     CreationDate = i.DateCreated,
                     ExpirationDate = i.DateCreated.AddMonths(1),
-                    ComplexityGrade = i.ComplexityGrade,
-                    PaymentAmount = i.PaymentAmount,
-                    ExpectedDurationInHours = i.ExpectedDurationInHours
+                    PaymentAmountPerHour = i.PaymentAmountPerHour,
                 }).Take(6).ToList();
 
             return result;
@@ -119,10 +110,8 @@ namespace Handymand.Services
 
             if(forupdate != null)
             {
-                forupdate.IdRefferedUser = contract.IdRefferedUser;
-                forupdate.PaymentAmount = contract.PaymentAmount;
-                forupdate.ExpectedDurationInHours = contract.ExpectedDurationInHours;
-                forupdate.ComplexityGrade = contract.ComplexityGrade;
+                forupdate.RefferedUserId = contract.RefferedUserId;
+                forupdate.PaymentAmountPerHour = contract.PaymentAmountPerHour;
 
                 _contractRepository.Update(forupdate);
                 _contractRepository.Save();
@@ -141,20 +130,6 @@ namespace Handymand.Services
             var forCreate = ConvertFromDTOforCreate(contract);
 
             _contractRepository.Create(forCreate);
-
-            _contractRepository.Save();
-
-            if(contract.SkillsList != null && contract.SkillsList.Count() > 0)
-            foreach(var skillId in contract.SkillsList)
-            {
-                ContractsSkills Cskill = new ContractsSkills();
-                Cskill.IdContract = contract.Id;
-                Cskill.IdSkill = skillId;
-
-                _contractsSkillsRepository.Create(Cskill);
-                _contractsSkillsRepository.Save();
-
-            }
 
             _contractRepository.Save();
 

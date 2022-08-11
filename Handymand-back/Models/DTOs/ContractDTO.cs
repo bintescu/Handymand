@@ -9,10 +9,10 @@ namespace Handymand.Models.DTOs
     {
         public int Id { get; set; }
         public string CreationUserFullName { get; set; }
-        public int IdCreationUser { get; set; }
+        public int CreationUserId { get; set; }
 
         public string RefferedUserFullName { get; set; }
-        public int? IdRefferedUser { get; set; }
+        public int RefferedUserId { get; set; }
 
         public DateTime? CreationDate { get; set; }
         //Daca nu are referred user atunci avem valoare aici o CreationDate + o luna
@@ -20,12 +20,8 @@ namespace Handymand.Models.DTOs
 
         public int ExpectedDurationInHours { get; set; }
 
-        public string Description { get; set; }
+        public double PaymentAmountPerHour { get; set; }
 
-        public decimal PaymentAmount { get; set; }
 
-        public int ComplexityGrade { get; set; }
-
-        public IEnumerable<int> SkillsList { get; set; }
     }
 }

@@ -11,9 +11,10 @@ namespace Handymand.Repository.DatabaseRepositories
 {
     public class UserRepository: GenericRepository<User>, IUserRepository
     {
+        private readonly HandymandContext _context;
         public UserRepository (HandymandContext context) : base(context)
         {
-
+            _context = context;
         }
 
         public List<User> GetAllWithInclude()
@@ -45,6 +46,26 @@ namespace Handymand.Repository.DatabaseRepositories
         {
             return await _table.Where(u => u.Role == Role.User).ToListAsync();
 
+        }
+
+        public async Task<int> GetOpenedContracts(int id)
+        {
+            return await _context.Contracts.Where(c => c.CreationUserId == id).CountAsync();
+        }
+
+        public async Task<int> GetClosedContracts(int id)
+        {
+            return await _context.Contracts.Where(c => c.CreationUserId == id && c.Valid == false).CountAsync();
+        }
+
+        public async Task<int> GetOpenedOffers(int id)
+        {
+            return await _context.Offers.Where(c => c.CreationUserId == id).CountAsync();
+        }
+
+        public async Task<int> GetOpenedJobOffers(int id)
+        {
+            return await _context.JobOffer.Where(c => c.CreationUserId == id).CountAsync();
         }
     }
 }

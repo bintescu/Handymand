@@ -26,8 +26,18 @@ namespace Handymand.Repository.DatabaseRepositories
             var result = await _table.Where(j => j.Id == Id).Include("JobOffersSkills.Skill")
                                      .Include("CreationUser")
                                      .Include("City")
+                                     .Include("Contract")
                                      .AsNoTracking()
                                      .FirstOrDefaultAsync();
+            if(result == null)
+            {
+                throw new NullReferenceException("There is no job offer with specified id!");
+            }
+
+            if(result.Contract != null && result.Contract.Valid == false)
+            {
+                throw new EntryPointNotFoundException("Acest job offer a fost inchis!");
+            }
 
 
             return result;
@@ -93,18 +103,24 @@ namespace Handymand.Repository.DatabaseRepositories
 
         }
 
-        public async Task<List<JobOffer>> GetAllJobOffersInclude(int skip, int noElements, FilterJobOffersDTO filter)
+        private async Task<List<JobOffer>> GetJobOffersFiltered(FilterJobOffersDTO filter, int? userId = null)
         {
-
-            var filteredList = await _table.Include("JobOffersSkills.Skill")
-                                     .Include("CreationUser")
-                                     .Include("City")
-                                     .AsNoTracking()
-                                     .ToListAsync();
+            var filteredList = await _table.Where(j => j.Available == true)
+                         .Include("JobOffersSkills.Skill")
+                         .Include("CreationUser")
+                         .Include("City")
+                         .AsNoTracking()
+                         .ToListAsync();
 
 
             await Task.Run(() =>
             {
+                if (userId != null)
+                {
+                    int id = (int)userId;
+
+                    filteredList = filteredList.Where(j => j.CreationUserId == id).ToList();
+                }
                 string CreatorName = filter.CreatorName;
 
                 if (CreatorName != "" && CreatorName != null)
@@ -164,6 +180,17 @@ namespace Handymand.Repository.DatabaseRepositories
 
             });
 
+            return filteredList;
+
+        }
+
+        public async Task<List<JobOffer>> GetAllJobOffersInclude(int skip, int noElements, FilterJobOffersDTO filter, int? userId = null)
+        {
+
+            var filteredList = await GetJobOffersFiltered(filter,userId);
+
+
+
             if (skip < 0 || noElements == 0)
             {
                 return filteredList.ToList();
@@ -174,9 +201,11 @@ namespace Handymand.Repository.DatabaseRepositories
             }
         }
 
-        public async Task<int> GetTotalNrOfJobOffers()
+        public async Task<int> GetTotalNrOfJobOffers(FilterJobOffersDTO filter, int? userId = null)
         {
-            return await _table.CountAsync();
+            var filteredList = await GetJobOffersFiltered(filter, userId);
+
+            return filteredList.Count();
         }
 
         public async Task<List<CityShortDTO>> GetAllCities()
@@ -186,6 +215,251 @@ namespace Handymand.Repository.DatabaseRepositories
                 Id = c.Id,
                 Name = c.Name
             }).ToListAsync();
+        }
+
+        public async Task<List<JobOffer>> GetAllActiveJobOffersForLoggedIn(int id)
+        {
+            return await _table.Where(j => j.CreationUserId == id && j.Available == true).OrderByDescending(j => j.DateCreated).ToListAsync();
+        }
+
+        public async Task<List<JobOffer>> GetAllPendingJobOffersForLoggedInOrderByDateCreate(int id)
+        {
+            try
+            {
+                return await _table.Where(j => j.CreationUserId == id && j.Available == false).OrderByDescending(j => j.DateCreated).Include("Contract").ToListAsync();
+            }
+            catch(Exception e)
+            {
+                throw;
+            }
+            
+        }
+
+        public async Task<Contract> CloseContract(int idJoboffer, int loggedinId, int feedbackVal)
+        {
+            var jobOffer = await _table.Include("Contract").FirstAsync(jo => jo.Id == idJoboffer);
+            if(jobOffer == null)
+            {
+                throw new Exception("There is no joboffer with specified id!");
+            }
+
+            if(jobOffer.CreationUserId != loggedinId)
+            {
+                throw new Exception("Joboffer found by specified id has different creation user than logged in user!");
+
+            }
+
+            Contract contract = jobOffer.Contract;
+            if(contract == null)
+            {
+                return null;
+            }
+
+            contract.Valid = false;
+            _context.Contracts.Update(contract);
+            await _context.SaveChangesAsync();
+
+            Feedback feedback = new Feedback();
+            feedback.CreationUserId = loggedinId;
+            feedback.Grade = feedbackVal;
+            feedback.FromClientToFreelancer = true;
+            feedback.FromFreelancerToClient = false;
+            feedback.RefferedUserId = jobOffer.Contract.RefferedUserId;
+            feedback.DateCreated = DateTime.Now;
+            feedback.JobOfferId = jobOffer.Id;
+
+            _context.Feedbacks.Add(feedback);
+            await _context.SaveChangesAsync();
+
+            return contract;
+
+
+        }
+
+
+        public async Task<Feedback> SendFeedback(int idJoboffer, int loggedinId, int feedbackVal)
+        {
+            var jobOffer = await _table.Include("Contract").FirstAsync(jo => jo.Id == idJoboffer);
+            if (jobOffer == null)
+            {
+                throw new Exception("There is no joboffer with specified id!");
+            }
+
+
+
+            Contract contract = jobOffer.Contract;
+            if (contract == null)
+            {
+                return null;
+            }
+
+            if (jobOffer.Contract.RefferedUserId != loggedinId)
+            {
+                throw new Exception("Contract found by reffered user id has different reffered user than logged in user!");
+
+            }
+
+            Feedback feedback = new Feedback();
+            feedback.CreationUserId = loggedinId;
+            feedback.Grade = feedbackVal;
+            feedback.FromClientToFreelancer = false;
+            feedback.FromFreelancerToClient = true;
+            feedback.RefferedUserId = jobOffer.Contract.CreationUserId;
+            feedback.DateCreated = DateTime.Now;
+            feedback.JobOfferId = jobOffer.Id;
+
+            try
+            {
+                _context.Feedbacks.Add(feedback);
+                await _context.SaveChangesAsync();
+            }
+            catch(Exception e)
+            {
+                throw;
+            }
+
+
+            return feedback;
+
+
+        }
+
+
+        public async Task<bool> DeleteJobOffer(int idJobOffer, int loggedinId)
+        {
+            var jobOffer = await _table.Include("Contract").FirstAsync(jo => jo.Id == idJobOffer);
+            if (jobOffer == null)
+            {
+                throw new Exception("There is no joboffer with specified id!");
+            }
+
+            if (jobOffer.CreationUserId != loggedinId)
+            {
+                throw new Exception("Joboffer found by specified id has different creation user than logged in user!");
+
+            }
+
+            if(jobOffer.Contract != null)
+            {
+                throw new Exception("There is an open contract for this job offer!");
+            }
+
+            var OffersList = await _context.Offers.Where(o => o.JobOfferId == jobOffer.Id).ToListAsync();
+            bool offersDeleted = false;
+            try
+            {
+                _context.Offers.RemoveRange(OffersList);
+                await _context.SaveChangesAsync();
+                offersDeleted = true;
+            }
+            catch(Exception e)
+            {
+                throw;
+            }
+
+
+            if (offersDeleted)
+            {
+                try
+                {
+                    _table.Remove(jobOffer);
+                    await _context.SaveChangesAsync();
+
+                }
+                catch(Exception e)
+                {
+                    throw;
+                }
+
+                return true;
+
+            }
+            else
+            {
+                return false;
+            }
+
+
+
+        }
+
+        public async Task<string> GetCustomerName(int idJobOffer)
+        {
+            var jobOffer = await _table.Include("Contract.CreationUser").FirstAsync(jo => jo.Id == idJobOffer);
+            if (jobOffer == null)
+            {
+                throw new Exception("There is no joboffer with specified id!");
+            }
+
+
+            Contract contract = jobOffer.Contract;
+            if (contract == null)
+            {
+                throw new Exception("There is no contract for this Job Offer!");
+
+            }
+
+            return jobOffer.Contract.CreationUser.LastName + " " + jobOffer.Contract.CreationUser.FirstName;
+           
+        }
+
+        public async Task<string> GetFreelancerName(int idJobOffer)
+        {
+            var jobOffer = await _table.Include("Contract.RefferedUser").FirstAsync(jo => jo.Id == idJobOffer);
+            if (jobOffer == null)
+            {
+                throw new Exception("There is no joboffer with specified id!");
+            }
+
+            Contract contract = jobOffer.Contract;
+            if (contract == null)
+            {
+                throw new Exception("There is no contract for this Job Offer!");
+
+            }
+
+            return jobOffer.Contract.RefferedUser.LastName + " " + jobOffer.Contract.RefferedUser.FirstName;
+
+        }
+
+        public async Task<List<JobOffer>> GetAllClosedForFeedback(int id)
+        {
+            //Extragem toate JobOfferIds din Feedback pe care acest freelancer a primit feedback.
+
+            var all_JobOfferIds_On_Feedbacks_RefferedToThisFreelancer = await _context.Feedbacks.Where(f => f.RefferedUserId == id && f.FromClientToFreelancer == true).Select(f => f.JobOfferId).ToListAsync();
+
+            //Extragem toate JobOfferIds din Feedback pe care freelancerul a dat feedback.
+
+            var all_JobOfferIds_On_Feedbacks_CreatedByThisFreelancer = await _context.Feedbacks.Where(f => f.CreationUserId == id && f.FromFreelancerToClient == true).Select(f => f.JobOfferId).ToListAsync();
+
+
+            //Ramanem doar cu feedback-ul pe care freelancerul l-a primit
+
+            var jobOfferIds_On_Which_ThisFreelancer_Only_GetFeeback = all_JobOfferIds_On_Feedbacks_RefferedToThisFreelancer.Where(fr => !all_JobOfferIds_On_Feedbacks_CreatedByThisFreelancer.Any(fc => fc == fr)).ToList();
+
+
+            //Verificam daca pe toate aceste jobOfferIds exista un contract inchis
+
+            var closed_Contracts_Refered_To_This_Freelancer = await _context.Contracts.Where(c => c.RefferedUserId == id && c.Valid == false).Select(c => c.JobOfferId).ToListAsync();
+
+            var jobOffersId_WithClosedContract = new List<int>();
+
+            foreach(var j in jobOfferIds_On_Which_ThisFreelancer_Only_GetFeeback)
+            {
+                if (closed_Contracts_Refered_To_This_Freelancer.Contains(j))
+                {
+                    jobOffersId_WithClosedContract.Add(j);
+                }
+            }
+
+            //Extragem toate jobofferurile cu aceste Id-uri
+
+            var final_JobOffers = await _table.Where(i => jobOffersId_WithClosedContract.Contains(i.Id)).Include("CreationUser").ToListAsync();
+
+            return final_JobOffers;
+
+
+
         }
     }
 }
