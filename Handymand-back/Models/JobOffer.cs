@@ -20,6 +20,7 @@ namespace Handymand.Models
 
         public ICollection<JobOffersSkills> JobOffersSkills { get; set; }
         public ICollection<Offer> Offers { get; set; }
+        public ICollection<Notification> ReferredNotifications { get; set; }
         
         public Contract Contract { get; set; }
 

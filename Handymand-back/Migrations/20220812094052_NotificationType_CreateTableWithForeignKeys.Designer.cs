@@ -4,14 +4,16 @@ using Handymand.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Handymand.Migrations
 {
     [DbContext(typeof(HandymandContext))]
-    partial class HandymandContextModelSnapshot : ModelSnapshot
+    [Migration("20220812094052_NotificationType_CreateTableWithForeignKeys")]
+    partial class NotificationType_CreateTableWithForeignKeys
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -440,43 +442,6 @@ namespace Handymand.Migrations
                     b.HasIndex("NotificationTypeId");
 
                     b.ToTable("NotificationAffectedLists");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            DateCreated = new DateTime(2022, 8, 12, 15, 2, 15, 552, DateTimeKind.Local).AddTicks(3519),
-                            Name = "My Active Offers",
-                            NotificationTypeId = 1
-                        },
-                        new
-                        {
-                            Id = 2,
-                            DateCreated = new DateTime(2022, 8, 12, 15, 2, 15, 552, DateTimeKind.Local).AddTicks(3827),
-                            Name = "My Accepted Offers",
-                            NotificationTypeId = 2
-                        },
-                        new
-                        {
-                            Id = 3,
-                            DateCreated = new DateTime(2022, 8, 12, 15, 2, 15, 552, DateTimeKind.Local).AddTicks(3839),
-                            Name = "My Active Job Offers",
-                            NotificationTypeId = 1
-                        },
-                        new
-                        {
-                            Id = 4,
-                            DateCreated = new DateTime(2022, 8, 12, 15, 2, 15, 552, DateTimeKind.Local).AddTicks(3841),
-                            Name = "Jobs To Pay For",
-                            NotificationTypeId = 2
-                        },
-                        new
-                        {
-                            Id = 5,
-                            DateCreated = new DateTime(2022, 8, 12, 15, 2, 15, 552, DateTimeKind.Local).AddTicks(3845),
-                            Name = "Closed Job Contracts",
-                            NotificationTypeId = 3
-                        });
                 });
 
             modelBuilder.Entity("Handymand.Models.NotificationType", b =>
@@ -498,26 +463,6 @@ namespace Handymand.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("NotificationTypes");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            DateCreated = new DateTime(2022, 8, 12, 15, 2, 15, 549, DateTimeKind.Local).AddTicks(7784),
-                            Description = "Create Offer"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            DateCreated = new DateTime(2022, 8, 12, 15, 2, 15, 552, DateTimeKind.Local).AddTicks(1979),
-                            Description = "Accept Offer"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            DateCreated = new DateTime(2022, 8, 12, 15, 2, 15, 552, DateTimeKind.Local).AddTicks(2012),
-                            Description = "Close Contract"
-                        });
                 });
 
             modelBuilder.Entity("Handymand.Models.Offer", b =>

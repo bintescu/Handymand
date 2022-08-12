@@ -38,6 +38,16 @@ namespace Handymand.Services
             return jobOffer;
         }
 
+        public JobOfferQuickViewDTO ConvertToJobOfferQuickViewDTO(JobOffer jobOffer)
+        {
+            var result = new JobOfferQuickViewDTO();
+            result.Id = jobOffer.Id;
+            result.Title = jobOffer.Title;
+            result.DateCreated = jobOffer.DateCreated;
+
+            return result;
+        }
+
         public JobOfferDTO ConvertToDTO(JobOffer jobOffer)
         {
             JobOfferDTO dto = new JobOfferDTO();
@@ -159,7 +169,11 @@ namespace Handymand.Services
             
 
             jobOffer.DateCreated = DateTime.Now;
-            jobOffer.NoImages = dto.Files.Count;
+            if(dto.Files != null)
+            {
+                jobOffer.NoImages = dto.Files.Count;
+            }
+
 
             await _jobOfferRepository.CreateAsync(jobOffer);
             await _jobOfferRepository.SaveAsync();
@@ -301,12 +315,29 @@ namespace Handymand.Services
         {
             var jobList = await _jobOfferRepository.GetAllActiveJobOffersForLoggedIn(id);
 
-            return jobList.Select(jo => new JobOfferQuickViewDTO()
+            var result = new List<JobOfferQuickViewDTO>();
+
+            foreach(var joboffer in jobList)
             {
-                Id = jo.Id,
-                Title = jo.Title,
-                DateCreated = jo.DateCreated
-            }).ToList();
+                var addDto = ConvertToJobOfferQuickViewDTO(joboffer);
+
+                var allNotificationOnThisJobOffer = await _jobOfferRepository.GetAllNotification(1, joboffer.Id, id);
+
+                //A vazut notificarea daca nu are nicio notificare
+                if (allNotificationOnThisJobOffer == 0)
+                {
+                    addDto.Viewed = true;
+                }
+                else
+                {
+                    addDto.Viewed = false;
+                    addDto.NotViewedNotifications = allNotificationOnThisJobOffer;
+                }
+
+                result.Add(addDto);
+            }
+
+            return result;
 
 
         }
@@ -391,6 +422,23 @@ namespace Handymand.Services
 
 
             }).ToList();
+
+            for (int i = 0; i < response.Count; i++)
+            {
+
+                var allNotificationOnThisJobOffer = await _jobOfferRepository.GetAllNotification(3, response[i].Id, id);
+
+                //A vazut notificarea daca nu are nicio notificare
+                if (allNotificationOnThisJobOffer == 0)
+                {
+                    response[i].Viewed = true;
+                }
+                else
+                {
+                    response[i].Viewed = false;
+                    response[i].NotViewedNotifications = allNotificationOnThisJobOffer;
+                }
+            }
 
             return response;
         }

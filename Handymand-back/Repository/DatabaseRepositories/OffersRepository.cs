@@ -72,7 +72,7 @@ namespace Handymand.Repository.DatabaseRepositories
 
         public async Task<List<Offer>> GetAllOffersForLoggedIn(int id)
         {
-            return await _table.Where(o => o.CreationUserId == id && o.Available == true).Include("JobOffer").OrderByDescending(o => o.DateCreated).ToListAsync();
+            return await _table.Where(o => o.CreationUserId == id && o.Available == true).Include("JobOffer").Where(o => o.JobOffer.Available == true).OrderByDescending(o => o.DateCreated).ToListAsync();
         }
 
         public async Task<bool> JobOfferCreationUserTryToCreateOffer(OfferCreateDTO dto)
@@ -159,6 +159,8 @@ namespace Handymand.Repository.DatabaseRepositories
             _context.JobOffer.Update(jobOffer);
             await _context.SaveChangesAsync();
 
+            //Notificam userul caruia i-am acceptat oferta
+            await AcceptOfferNotifications(loggedInId, jobOffer.Id, existentOffer.CreationUserId);
 
             return true;
 
@@ -190,7 +192,7 @@ namespace Handymand.Repository.DatabaseRepositories
 
                 mediumGrade = mediumGrade / length;
 
-                result.Grade = mediumGrade;
+                result.Grade = Math.Round(mediumGrade,1);
                 result.NrOfFeedbacks = length;
             }
 
@@ -218,12 +220,74 @@ namespace Handymand.Repository.DatabaseRepositories
 
                 mediumGrade = mediumGrade / length;
 
-                result.Grade = mediumGrade;
+                result.Grade = Math.Round(mediumGrade, 1);
                 result.NrOfFeedbacks = length;
             }
 
             return result;
 
+        }
+
+        public async Task CreateOfferNotifications(int creationUserId, int jobOfferId)
+        {
+            //Lista de Useri pentru care trebuie sa cream notificare
+            // Sunt cei care au oferte active pe acest job offer
+
+            //Plus creatorul job offerului.
+
+            var notifiedUsers = await _table.Where(o => o.JobOfferId == jobOfferId && o.CreationUserId != creationUserId).Select(o => o.CreationUserId).ToListAsync();
+
+            int? customer = await _context.JobOffer.Where(j => j.Id == jobOfferId).Select(j => j.CreationUserId).FirstOrDefaultAsync();
+
+            if(customer == null)
+            {
+                throw new NullReferenceException("Nu exista un creator pentru acest job offer!");
+            }
+
+
+            notifiedUsers.Add((int)customer);
+
+            //Parcurgem intreaga lista de utilizatori si le cream notificare fiecaruia
+            for(int i = 0; i< notifiedUsers.Count; i++)
+            {
+                Notification notification = new Notification();
+                notification.CreationUserId = creationUserId;
+                notification.JobOfferId = jobOfferId;
+                notification.ReferredUserId = notifiedUsers[i];
+                notification.Viewed = false;
+                notification.NotificationTypeId = 1;
+                notification.DateCreated = DateTime.Now;
+
+                _context.Notifications.Add(notification);
+            }
+
+            await _context.SaveChangesAsync();
+
+
+
+        }
+
+        public async Task AcceptOfferNotifications(int creationUserId, int jobOfferId, int referredUserId)
+        {
+            Notification notification = new Notification();
+            notification.CreationUserId = creationUserId;
+            notification.JobOfferId = jobOfferId;
+            notification.ReferredUserId = referredUserId;
+            notification.Viewed = false;
+            notification.NotificationTypeId = 2;
+            notification.DateCreated = DateTime.Now;
+
+            _context.Notifications.Add(notification);
+
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<int> GetAllNotification(int notificationTypeId, int jobOfferId, int userId)
+        {
+           return await _context.Notifications.Where(n => n.JobOfferId == jobOfferId &&
+                                              n.NotificationTypeId == notificationTypeId &&
+                                              n.ReferredUserId == userId &&
+                                              n.Viewed == false).CountAsync();
         }
     }
 }

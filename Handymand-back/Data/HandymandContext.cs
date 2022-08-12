@@ -30,6 +30,12 @@ namespace Handymand.Data
 
         public DbSet<Feedback> Feedbacks { get; set; }
 
+        public DbSet<Notification> Notifications { get; set; }
+
+        public DbSet<NotificationAffectedList> NotificationAffectedLists { get; set; }
+
+        public DbSet<NotificationType> NotificationTypes { get; set; }
+
         public HandymandContext(DbContextOptions<HandymandContext> options) : base(options)
         {
 
@@ -53,6 +59,26 @@ namespace Handymand.Data
                 .HasForeignKey<Feedback>(f => f.JobOfferId);
 
             //One to Many
+
+            modelBuilder.Entity<Notification>()
+                .HasOne(n => n.CreationUser).WithMany(u => u.CreatedNotifications)
+                .HasForeignKey(n => n.CreationUserId);
+
+            modelBuilder.Entity<Notification>()
+                .HasOne(n => n.ReferredUser).WithMany(u => u.ReceivedNotifications)
+                .HasForeignKey(n => n.ReferredUserId);
+
+            modelBuilder.Entity<Notification>()
+                .HasOne(n => n.JobOffer).WithMany(j => j.ReferredNotifications)
+                .HasForeignKey(n => n.JobOfferId);
+
+            modelBuilder.Entity<Notification>()
+                .HasOne(n => n.NotificationType).WithMany(nt => nt.Notifications)
+                .HasForeignKey(n => n.NotificationTypeId);
+
+            modelBuilder.Entity<NotificationAffectedList>()
+                .HasOne(nal => nal.NotificationType).WithMany(nt => nt.NotificationAffectedLists)
+                .HasForeignKey(nal => nal.NotificationTypeId);
 
             modelBuilder.Entity<Feedback>()
                 .HasOne(f => f.CreationUser).WithMany(u => u.CreatedFeedbacks).HasForeignKey(f => f.CreationUserId);
@@ -153,6 +179,22 @@ namespace Handymand.Data
                     new City() { Id = 16, Name = "Drobeta-Turnu Severin"},
                     new City() { Id = 17, Name = "Slatina" },
                     new City() { Id = 18, Name = "Deva" }
+                );
+
+
+            modelBuilder.Entity<NotificationType>().HasData(
+                new NotificationType() { Id = 1, Description = "Create Offer", DateCreated=DateTime.Now},
+                new NotificationType() { Id = 2, Description = "Accept Offer", DateCreated = DateTime.Now },
+                new NotificationType() { Id = 3, Description = "Close Contract", DateCreated = DateTime.Now }
+                );
+
+
+            modelBuilder.Entity<NotificationAffectedList>().HasData(
+                new NotificationAffectedList() { Id = 1, Name="My Active Offers", DateCreated = DateTime.Now, NotificationTypeId = 1},
+                new NotificationAffectedList() { Id = 2, Name = "My Accepted Offers", DateCreated = DateTime.Now, NotificationTypeId = 2 },
+                new NotificationAffectedList() { Id = 3, Name = "My Active Job Offers", DateCreated = DateTime.Now,NotificationTypeId = 1},
+                new NotificationAffectedList() { Id = 4, Name = "Jobs To Pay For", DateCreated = DateTime.Now, NotificationTypeId = 2 },
+                new NotificationAffectedList() { Id = 5, Name = "Closed Job Contracts", DateCreated = DateTime.Now, NotificationTypeId = 3 }
                 );
 
             base.OnModelCreating(modelBuilder);

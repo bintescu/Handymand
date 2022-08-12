@@ -16,8 +16,12 @@ namespace Handymand.Services
 
         //GetAll
         Task<List<UserDTO>> GetAllUsers();
+        Task<List<UserDTO>> GetAllUsers(int pageNr, int noElements, FilterUsersDTO filter);
         Task<UserInfoBarDTO> GetUserInfoBar(int id);
 
+        Task<int> GetNrOfNotifications(int id);
+
+        Task<int> GetTotalNrOfUsers(FilterUsersDTO filter);
         //GetById
 
         Task<ServiceResponse<UserDTO>> GetById(int Id);
@@ -37,6 +41,7 @@ namespace Handymand.Services
 
         Task<bool> UpdateUserAdmin(UserDTO dto);
 
+        Task<bool> ViewNotificationOnJobOffer(int loggedinId, int jobOfferId, int notificationTypeId);
 
         //Delete
 

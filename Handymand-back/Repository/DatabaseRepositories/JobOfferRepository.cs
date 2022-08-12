@@ -5,6 +5,7 @@ using Handymand.Repository.GenericRepository;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -238,19 +239,19 @@ namespace Handymand.Repository.DatabaseRepositories
         public async Task<Contract> CloseContract(int idJoboffer, int loggedinId, int feedbackVal)
         {
             var jobOffer = await _table.Include("Contract").FirstAsync(jo => jo.Id == idJoboffer);
-            if(jobOffer == null)
+            if (jobOffer == null)
             {
                 throw new Exception("There is no joboffer with specified id!");
             }
 
-            if(jobOffer.CreationUserId != loggedinId)
+            if (jobOffer.CreationUserId != loggedinId)
             {
                 throw new Exception("Joboffer found by specified id has different creation user than logged in user!");
 
             }
 
             Contract contract = jobOffer.Contract;
-            if(contract == null)
+            if (contract == null)
             {
                 return null;
             }
@@ -258,6 +259,8 @@ namespace Handymand.Repository.DatabaseRepositories
             contract.Valid = false;
             _context.Contracts.Update(contract);
             await _context.SaveChangesAsync();
+
+            //Trebuie inchisa oferta.
 
             Feedback feedback = new Feedback();
             feedback.CreationUserId = loggedinId;
@@ -270,12 +273,40 @@ namespace Handymand.Repository.DatabaseRepositories
 
             _context.Feedbacks.Add(feedback);
             await _context.SaveChangesAsync();
+            //Trebuie sterse toate notificarile care au fost create pe acest jobOffer
 
+
+            await CreateContractNotifications(loggedinId, jobOffer);
+
+            DeleteJobOfferFolder(jobOffer.Id);
             return contract;
 
 
         }
+        
+        private async Task DeleteAllNotificationsForJobOffer(int idJobOffer)
+        {
+            var notifications = await _context.Notifications.Where(n => n.JobOfferId == idJobOffer && n.NotificationTypeId != 3).ToListAsync();
 
+            _context.Notifications.RemoveRange(notifications);
+            await _context.SaveChangesAsync();
+        }
+
+
+        private async Task CreateContractNotifications(int loggedinId, JobOffer jobOffer)
+        {
+            Notification notification = new Notification();
+            notification.CreationUserId = loggedinId;
+            notification.JobOfferId = jobOffer.Id;
+            notification.ReferredUserId = jobOffer.Contract.RefferedUserId;
+            notification.Viewed = false;
+            notification.NotificationTypeId = 3;
+            notification.DateCreated = DateTime.Now;
+
+            _context.Notifications.Add(notification);
+
+            await _context.SaveChangesAsync();
+        }
 
         public async Task<Feedback> SendFeedback(int idJoboffer, int loggedinId, int feedbackVal)
         {
@@ -365,8 +396,15 @@ namespace Handymand.Repository.DatabaseRepositories
                     _table.Remove(jobOffer);
                     await _context.SaveChangesAsync();
 
+                    await DeleteAllNotificationsForJobOffer(jobOffer.Id);
+
+                    //Delete all files:
+                    int jobOfferId = jobOffer.Id;
+
+                    DeleteJobOfferFolder(jobOfferId);
+
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     throw;
                 }
@@ -380,6 +418,28 @@ namespace Handymand.Repository.DatabaseRepositories
             }
 
 
+
+        }
+
+        private void DeleteJobOfferFolder(int jobOfferId)
+        {
+            string folderPath = "JobOffers_Images\\" + jobOfferId;
+            string currentDirectory = Directory.GetCurrentDirectory();
+            var folderPathComplete = Path.Combine(currentDirectory, folderPath);
+            if (Directory.Exists(folderPathComplete))
+            {
+                System.IO.DirectoryInfo di = new DirectoryInfo(folderPathComplete);
+
+                foreach (FileInfo file in di.GetFiles())
+                {
+                    file.Delete();
+                }
+
+                foreach (DirectoryInfo dir in di.GetDirectories())
+                {
+                    dir.Delete(true);
+                }
+            }
 
         }
 
@@ -460,6 +520,15 @@ namespace Handymand.Repository.DatabaseRepositories
 
 
 
+        }
+
+
+        public async Task<int> GetAllNotification(int notificationTypeId, int jobOfferId, int userId)
+        {
+            return await _context.Notifications.Where(n => n.JobOfferId == jobOfferId &&
+                                               n.NotificationTypeId == notificationTypeId &&
+                                               n.ReferredUserId == userId &&
+                                               n.Viewed == false).CountAsync();
         }
     }
 }

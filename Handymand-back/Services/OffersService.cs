@@ -78,7 +78,29 @@ namespace Handymand.Services
         {
             var list = await _offersRepository.GetAllOffersForLoggedIn(id);
 
-            return list.Select(offer => ConvertToDTOforLoggedIn(offer)).ToList();
+            var result = new List<OffersForLoggedInDTO>();
+
+            foreach(Offer offer in list)
+            {
+                var addDto = ConvertToDTOforLoggedIn(offer);
+
+                var allNotificationOnThisJobOffer = await _offersRepository.GetAllNotification(1, offer.JobOfferId, id);
+
+                //A vazut notificarea daca nu are nicio notificare
+                if( allNotificationOnThisJobOffer == 0)
+                {
+                    addDto.Viewed = true;
+                }
+                else
+                {
+                    addDto.Viewed = false;
+                    addDto.NotViewedNotifications = allNotificationOnThisJobOffer;
+                }
+
+                result.Add(addDto);
+            }
+
+            return result;
 
         }
 
@@ -115,6 +137,10 @@ namespace Handymand.Services
 
         public async Task<bool> Create(OfferCreateDTO offerdto)
         {
+            int creationUserId = offerdto.CreationUserId;
+            int jobOfferId = offerdto.JobOfferId;
+            await _offersRepository.CreateOfferNotifications(creationUserId, jobOfferId);
+
             var alreadyExist = await _offersRepository.FinByIdUserAndIdJobOffer(offerdto);
 
             if (alreadyExist != null)
@@ -159,6 +185,25 @@ namespace Handymand.Services
                                 PaymentAmount = j.PaymentAmount
                             }).ToList();
 
+
+            for(int i = 0; i < result.Count; i ++)
+            {
+                
+                var allNotificationOnThisJobOffer = await _offersRepository.GetAllNotification(2, result[i].JobOfferId, id);
+
+                //A vazut notificarea daca nu are nicio notificare
+                if (allNotificationOnThisJobOffer == 0)
+                {
+                    result[i].Viewed = true;
+                }
+                else
+                {
+                    result[i].Viewed = false;
+                    result[i].NotViewedNotifications = allNotificationOnThisJobOffer;
+                }
+            }
+
+
             return result;
 
         }
@@ -172,5 +217,7 @@ namespace Handymand.Services
         {
             return await _offersRepository.GetRatingForCustomer(userId);
         }
+
+
     }
 }

@@ -12,7 +12,8 @@ namespace Handymand.Models.DTOs
         public string Name { get; set; }
         public string Description { get; set; }
         public DateTime DateCreated { get; set; }
-
+        public bool Viewed { get; set; }
+        public int NotViewedNotifications { get; set; }
         public int CreationUserId { get; set; }
         public string CreationUserName { get; set; }
 

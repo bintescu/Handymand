@@ -11,6 +11,8 @@ namespace Handymand.Models.DTOs
         public string JobOfferTitle { get; set; }
         public int JobOfferId { get; set; }
         public double PaymentAmount { get; set; }
+        public bool Viewed { get; set; }
+        public int NotViewedNotifications { get; set; }
         public DateTime DateCreated { get; set; }
     }
 }

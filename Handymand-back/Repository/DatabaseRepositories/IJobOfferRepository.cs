@@ -26,5 +26,6 @@ namespace Handymand.Repository.DatabaseRepositories
         Task<bool> DeleteJobOffer(int idJobOffer, int loggedinId);
         Task<string> GetCustomerName(int idJobOffer);
         Task<string> GetFreelancerName(int idJobOffer);
+        Task<int> GetAllNotification(int notificationTypeId, int jobOfferId, int userId);
     }
 }

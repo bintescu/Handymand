@@ -4,14 +4,16 @@ using Handymand.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Handymand.Migrations
 {
     [DbContext(typeof(HandymandContext))]
-    partial class HandymandContextModelSnapshot : ModelSnapshot
+    [Migration("20220812093557_NotificationAffectedList_CreateTable")]
+    partial class NotificationAffectedList_CreateTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -394,9 +396,6 @@ namespace Handymand.Migrations
                     b.Property<int>("JobOfferId")
                         .HasColumnType("int");
 
-                    b.Property<int>("NotificationTypeId")
-                        .HasColumnType("int");
-
                     b.Property<int>("ReferredUserId")
                         .HasColumnType("int");
 
@@ -408,8 +407,6 @@ namespace Handymand.Migrations
                     b.HasIndex("CreationUserId");
 
                     b.HasIndex("JobOfferId");
-
-                    b.HasIndex("NotificationTypeId");
 
                     b.HasIndex("ReferredUserId");
 
@@ -432,92 +429,9 @@ namespace Handymand.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("NotificationTypeId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("NotificationTypeId");
 
                     b.ToTable("NotificationAffectedLists");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            DateCreated = new DateTime(2022, 8, 12, 15, 2, 15, 552, DateTimeKind.Local).AddTicks(3519),
-                            Name = "My Active Offers",
-                            NotificationTypeId = 1
-                        },
-                        new
-                        {
-                            Id = 2,
-                            DateCreated = new DateTime(2022, 8, 12, 15, 2, 15, 552, DateTimeKind.Local).AddTicks(3827),
-                            Name = "My Accepted Offers",
-                            NotificationTypeId = 2
-                        },
-                        new
-                        {
-                            Id = 3,
-                            DateCreated = new DateTime(2022, 8, 12, 15, 2, 15, 552, DateTimeKind.Local).AddTicks(3839),
-                            Name = "My Active Job Offers",
-                            NotificationTypeId = 1
-                        },
-                        new
-                        {
-                            Id = 4,
-                            DateCreated = new DateTime(2022, 8, 12, 15, 2, 15, 552, DateTimeKind.Local).AddTicks(3841),
-                            Name = "Jobs To Pay For",
-                            NotificationTypeId = 2
-                        },
-                        new
-                        {
-                            Id = 5,
-                            DateCreated = new DateTime(2022, 8, 12, 15, 2, 15, 552, DateTimeKind.Local).AddTicks(3845),
-                            Name = "Closed Job Contracts",
-                            NotificationTypeId = 3
-                        });
-                });
-
-            modelBuilder.Entity("Handymand.Models.NotificationType", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<DateTime>("DateCreated")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("DateModified")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("NotificationTypes");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            DateCreated = new DateTime(2022, 8, 12, 15, 2, 15, 549, DateTimeKind.Local).AddTicks(7784),
-                            Description = "Create Offer"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            DateCreated = new DateTime(2022, 8, 12, 15, 2, 15, 552, DateTimeKind.Local).AddTicks(1979),
-                            Description = "Accept Offer"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            DateCreated = new DateTime(2022, 8, 12, 15, 2, 15, 552, DateTimeKind.Local).AddTicks(2012),
-                            Description = "Close Contract"
-                        });
                 });
 
             modelBuilder.Entity("Handymand.Models.Offer", b =>
@@ -798,12 +712,6 @@ namespace Handymand.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Handymand.Models.NotificationType", "NotificationType")
-                        .WithMany("Notifications")
-                        .HasForeignKey("NotificationTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Handymand.Models.User", "ReferredUser")
                         .WithMany("ReceivedNotifications")
                         .HasForeignKey("ReferredUserId")
@@ -814,20 +722,7 @@ namespace Handymand.Migrations
 
                     b.Navigation("JobOffer");
 
-                    b.Navigation("NotificationType");
-
                     b.Navigation("ReferredUser");
-                });
-
-            modelBuilder.Entity("Handymand.Models.NotificationAffectedList", b =>
-                {
-                    b.HasOne("Handymand.Models.NotificationType", "NotificationType")
-                        .WithMany("NotificationAffectedLists")
-                        .HasForeignKey("NotificationTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("NotificationType");
                 });
 
             modelBuilder.Entity("Handymand.Models.Offer", b =>
@@ -885,13 +780,6 @@ namespace Handymand.Migrations
                     b.Navigation("Offers");
 
                     b.Navigation("ReferredNotifications");
-                });
-
-            modelBuilder.Entity("Handymand.Models.NotificationType", b =>
-                {
-                    b.Navigation("NotificationAffectedLists");
-
-                    b.Navigation("Notifications");
                 });
 
             modelBuilder.Entity("Handymand.Models.Skill", b =>

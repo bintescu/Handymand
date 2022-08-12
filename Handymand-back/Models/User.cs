@@ -39,5 +39,8 @@ namespace Handymand.Models
 
         public ICollection<JobOffer> CreatedJobOffers { get; set; }
 
+        public ICollection<Notification> CreatedNotifications { get; set; }
+        public ICollection<Notification> ReceivedNotifications { get; set; }
+
     }
 }

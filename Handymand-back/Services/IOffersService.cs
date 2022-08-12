@@ -20,5 +20,7 @@ namespace Handymand.Services
         Task<RatingDTO> GetRatingForFreelancer(int userId);
         Task<RatingDTO> GetRatingForCustomer(int userId);
 
+
+
     }
 }

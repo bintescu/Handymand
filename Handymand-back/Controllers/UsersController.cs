@@ -31,6 +31,78 @@ namespace Handymand.Controllers
             _appSettings = appSettings.Value;
         }
 
+
+        [Authorization(Role.Admin, Role.User)]
+        [HttpPost("viewnotification/{idJobOffer}/{notificationTypeId}")]
+        public async Task<ActionResult<ServiceResponse<bool>>> ViewCreateNotificationOnJobOffer([FromRoute] int idJobOffer, [FromRoute] int notificationTypeId)
+        {
+            var result = new ServiceResponse<bool>();
+            result.Data = true;
+
+
+            if (idJobOffer != 0)
+            {
+                try
+                {
+                    int id = Convert.ToInt32(HttpContext.User.FindFirstValue("id"));
+                    if (id == 0)
+                    {
+                        return BadRequest("Loggedin Id is 0!");
+                    }
+
+                    bool res =  await _userService.ViewNotificationOnJobOffer(id, idJobOffer, notificationTypeId);
+                    result.Data = res;
+                    if (res == false)
+                    {
+                        result.Message = "There is no notification with this parameters!";
+                    }
+
+                    return Ok(result);
+                }
+                catch (Exception e)
+                {
+                    result.Message = e.Message;
+                    result.Success = false;
+                    return BadRequest(result);
+                }
+            }
+
+            return BadRequest("IdJobOffer is 0 or empty!");
+        }
+
+
+        [Authorization(Role.User, Role.Admin)]
+        [HttpGet("notificationsnr")]
+        public async Task<ActionResult<ServiceResponse<int>>> GetNrOfNotifications()
+        {
+            var response = new ServiceResponse<int>();
+            try
+            {
+                int id = Convert.ToInt32(HttpContext.User.FindFirstValue("id"));
+                if (id == 0)
+                {
+                    return BadRequest("Id used for request total nr of notifications is null!");
+                }
+                else
+                {
+                    var result = await _userService.GetNrOfNotifications(id);
+
+                    response.Data = result;
+
+                    return Ok(response);
+                    
+
+                }
+
+            }
+            catch (Exception e)
+            {
+                response.Success = false;
+                response.Message = e.Message;
+                return BadRequest(response);
+            }
+        }
+
         [HttpPost("authenticate")]
         public async Task<IActionResult> Authenticate(UserRequestDTO dto)
         {
@@ -98,30 +170,6 @@ namespace Handymand.Controllers
 
         }
 
-
-/*        [HttpPost("profile/{id}")]
-        public ActionResult<ServiceResponse<string>> GetProfile([FromBody] SkillDTO skillDTO, [FromRoute] string id)
-        {
-            var response = new ServiceResponse<string>();
-            var key = _appSettings.Key;
-
-            string decryptedString = response.DecryptStringAES(skillDTO.SkillName, key, skillDTO.Iv);
-            byte[] Iv = response.GenerateIv();
-            if (decryptedString.Contains("bun"))
-            {
-
-                response.Data = response.EncryptString("Ok,salut!", key, Iv);
-                response.Iv = Iv;
-
-            }
-            else
-            {
-                response.Data = response.EncryptString("Ok, nu inteleg dar salut!", key, Iv);
-                response.Iv = Iv;
-            }
-
-            return Ok(response);
-        }*/
 
         [Authorization(Role.User,Role.Admin)]
         [HttpPost("getuser")]
@@ -380,6 +428,55 @@ namespace Handymand.Controllers
             try
             {
                 var usersList = await _userService.GetAllUsers();
+                result.Data = usersList;
+            }
+            catch (Exception e)
+            {
+                result.Success = false;
+                result.Message = e.Message;
+                return BadRequest(result);
+
+            }
+
+            return Ok(result);
+        }
+
+
+
+        [Authorization(Role.User, Role.Admin)]
+        [HttpPost("total")]
+        public async Task<ActionResult<ServiceResponse<int>>> GetTotalNrOfUsers([FromBody] FilterUsersDTO filter)
+        {
+            var result = new ServiceResponse<int>();
+
+            try
+            {
+                int number = await _userService.GetTotalNrOfUsers(filter);
+                result.Data = number;
+
+            }
+            catch (Exception e)
+            {
+                result.Success = false;
+                result.Message = e.Message;
+                return BadRequest(result);
+
+            }
+
+            return Ok(result);
+        }
+
+
+
+        [Authorization(Role.User, Role.Admin)]
+        [HttpPost("all")]
+        public async Task<ActionResult<ServiceResponse<IEnumerable<UserDTO>>>> GetAllUsers([FromQuery] int pageNr, [FromQuery] int noElements, [FromBody] FilterUsersDTO filter)
+        {
+            var result = new ServiceResponse<List<UserDTO>>();
+
+            try
+            {
+                var usersList = await _userService.GetAllUsers(pageNr, noElements, filter);
                 result.Data = usersList;
             }
             catch (Exception e)

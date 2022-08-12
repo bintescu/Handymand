@@ -24,6 +24,15 @@ namespace Handymand.Repository.DatabaseRepositories
         Task<int>  GetClosedContracts(int id);
         Task<int>  GetOpenedOffers(int id);
         Task<int>  GetOpenedJobOffers(int id);
+
+        Task<int> GetNrOfNotifications(int id);
+        Task<bool> ViewNotificationOnJobOffer(int loggedinId, int jobOfferId, int notificationTypeId);
+
+
+        Task<RatingDTO> GetRatingForFreelancer(int userId);
+        Task<RatingDTO> GetRatingForCustomer(int userId);
+
+
         // Task<User> UpdateUser(User userForUpdate, User newVariant);
     }
 }

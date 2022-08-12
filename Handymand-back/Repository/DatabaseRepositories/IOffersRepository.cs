@@ -21,6 +21,9 @@ namespace Handymand.Repository.DatabaseRepositories
         Task<RatingDTO> GetRatingForFreelancer(int userId);
 
         Task<RatingDTO> GetRatingForCustomer(int userId);
-        
+
+        Task CreateOfferNotifications(int creationUserId, int jobOfferId);
+        Task<int> GetAllNotification(int notificationTypeId, int jobOfferId, int userId);
+
     }
 }

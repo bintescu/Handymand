@@ -163,6 +163,184 @@ namespace Handymand.Services
 
         }
 
+        private bool VerifyNames(string firstName, string lastName, string[] nameSplitted)
+        {
+            string[] user_fullname = new string[] { firstName.ToLower(), lastName.ToLower() };
+
+            string[] lowerNameSplitted = new string[nameSplitted.Length];
+
+            for (int i = 0; i < nameSplitted.Length; i++)
+            {
+                lowerNameSplitted[i] = nameSplitted[i].ToLower();
+            }
+
+
+            var intersect = user_fullname.Intersect(lowerNameSplitted);
+
+            if (intersect.Count() == nameSplitted.Length)
+            {
+                return true;
+            }
+
+            return false;
+
+        }
+
+        public async Task<List<UserDTO>> GetAllUsers(int pageNr, int noElements, FilterUsersDTO filter)
+        {
+
+            int skip = (pageNr) * noElements;
+
+
+            var result = new List<UserDTO>();
+
+            var userList = await _userRepository.GetAllWithoutAdmin();
+
+            string Name = filter.Name;
+
+            if (Name != "" && Name != null)
+            {
+                string[] inputNamesSplitted = filter.Name.TrimStart().TrimEnd().Split(" ");
+                userList = userList.Where(j => VerifyNames(j.LastName, j.FirstName, inputNamesSplitted)).ToList();
+            }
+
+            List<User> filteredByRatingCustomer = null;
+
+            if (filter.RatingAsCustomer != null && filter.RatingAsCustomer != 0)
+            {
+                filteredByRatingCustomer = new List<User>();
+
+                int rating = (int)filter.RatingAsCustomer;
+                await Task.Run(async () =>
+                {
+                    foreach(var user in userList)
+                    {
+                        var userRating = await _userRepository.GetRatingForCustomer(user.Id);
+                        if(userRating.Grade >= rating)
+                        {
+                            filteredByRatingCustomer.Add(user);
+                        }
+
+                    }
+
+                });
+            }
+
+            List<User> filteredByRatingFreelancer = null;
+
+            if (filter.RatingAsFreelancer != null && filter.RatingAsFreelancer != 0)
+            {
+                filteredByRatingFreelancer = new List<User>();
+
+                int rating = (int) filter.RatingAsFreelancer;
+
+                List<User> filteredAuxList = null;
+
+                if(filteredByRatingCustomer != null)
+                {
+                    filteredAuxList = filteredByRatingCustomer;
+                }
+                else
+                {
+                    filteredAuxList = userList;
+                }
+
+                await Task.Run(async () =>
+                {
+                    foreach (var user in filteredAuxList)
+                    {
+                        var userRating = await _userRepository.GetRatingForFreelancer(user.Id);
+                        if (userRating.Grade >= rating)
+                        {
+                            filteredByRatingFreelancer.Add(user);
+                        }
+
+                    }
+
+                });
+            }
+
+
+            if(filteredByRatingFreelancer != null)
+            {
+                var response1 = new List<UserDTO>();
+
+                await Task.Run(() =>
+                {
+                    foreach (var user in filteredByRatingFreelancer)
+                    {
+
+                        var dto = ConvertToDTOForAdminGetUser(user);
+                        response1.Add(dto);
+
+                    }
+
+                });
+
+                if (skip < 0 || noElements == 0)
+                {
+                    return response1;
+                }
+                else
+                {
+                    return response1.Skip(skip).Take(noElements).ToList();
+                }
+            }
+            else if(filteredByRatingCustomer != null)
+            {
+                var response2 = new List<UserDTO>();
+
+                await Task.Run(() =>
+                {
+                    foreach (var user in filteredByRatingCustomer)
+                    {
+
+                        var dto = ConvertToDTOForAdminGetUser(user);
+                        response2.Add(dto);
+
+                    }
+
+                });
+
+                if (skip < 0 || noElements == 0)
+                {
+                    return response2;
+                }
+                else
+                {
+                    return response2.Skip(skip).Take(noElements).ToList();
+                }
+            }
+
+            var response = new List<UserDTO>();
+
+            await Task.Run(() =>
+            {
+                foreach (var user in userList)
+                {
+
+                    var dto = ConvertToDTOForAdminGetUser(user);
+                    response.Add(dto);
+
+                }
+
+            });
+
+            if (skip < 0 || noElements == 0)
+            {
+                return response;
+            }
+            else
+            {
+                return response.Skip(skip).Take(noElements).ToList();
+            }
+
+
+
+
+
+        }
+
 
         public async Task CreateUser(UserDTO user)
         {
@@ -564,6 +742,24 @@ namespace Handymand.Services
             result.OpenedOffers = OpenedOffers;
             result.OpenedJobOffers = OpenedJobOffers;
             return result;
+        }
+
+        public async Task<int> GetNrOfNotifications(int id)
+        {
+            return await _userRepository.GetNrOfNotifications(id);
+        }
+
+        public async Task<bool> ViewNotificationOnJobOffer(int loggedinId, int jobOfferId, int notificationTypeId)
+        {
+            return await _userRepository.ViewNotificationOnJobOffer(loggedinId, jobOfferId, notificationTypeId);
+
+        }
+
+        public async Task<int> GetTotalNrOfUsers(FilterUsersDTO filter)
+        {
+            var result = await GetAllUsers(-1, 2, filter);
+
+            return result.Count;
         }
     }
 }

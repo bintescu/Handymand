@@ -224,7 +224,7 @@ namespace Handymand.Controllers
                     int id = Convert.ToInt32(HttpContext.User.FindFirstValue("id"));
                     if (id == 0)
                     {
-                        return BadRequest("Id used for create a skill is null!");
+                        return BadRequest("Loggedin Id is 0!");
                     }
 
                     offerdto.CreationUserId = id;
@@ -237,9 +237,12 @@ namespace Handymand.Controllers
                     result.Success = false;
                     return BadRequest(result);
                 }
+
+                return Ok(result);
             }
 
-            return Ok(result);
+            return BadRequest("Object sent for create Offer is null!");
+
 
         }
 
