@@ -20,7 +20,7 @@ namespace Handymand.Controllers
             this.hubContext = hubContext;
         }
 
-        [HttpPost]
+        [HttpPost("sendmessage")]
         public async Task SendMessage(ChatMessage message)
         {
             //additional business logic 
@@ -28,6 +28,12 @@ namespace Handymand.Controllers
             await this.hubContext.Clients.All.SendAsync("messageReceivedFromApi", message);
 
             //additional business logic 
+        }
+
+        [HttpGet("notifications")] 
+        public async Task SendNotifications()
+        {
+            await this.hubContext.Clients.All.SendAsync("updateNotification");
         }
     }
 }
