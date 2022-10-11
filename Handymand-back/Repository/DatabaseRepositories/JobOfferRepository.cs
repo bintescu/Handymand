@@ -279,6 +279,8 @@ namespace Handymand.Repository.DatabaseRepositories
             await CreateContractNotifications(loggedinId, jobOffer);
 
             DeleteJobOfferFolder(jobOffer.Id);
+            await DeleteAllNotificationsForJobOffer(jobOffer.Id);
+
             return contract;
 
 

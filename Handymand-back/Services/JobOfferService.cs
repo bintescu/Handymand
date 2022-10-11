@@ -15,11 +15,9 @@ namespace Handymand.Services
     public class JobOfferService: IJobOfferService
     {
         private IJobOfferRepository _jobOfferRepository;
-        private IUserRepository _userRepository;
-        public JobOfferService(IJobOfferRepository jobOfferRepository, IUserRepository userRepository)
+        public JobOfferService(IJobOfferRepository jobOfferRepository)
         {
             _jobOfferRepository = jobOfferRepository;
-            _userRepository = userRepository;
 
         }
         

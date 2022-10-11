@@ -23,11 +23,7 @@ namespace Handymand.Controllers
         [HttpPost("sendmessage")]
         public async Task SendMessage(ChatMessage message)
         {
-            //additional business logic 
-
             await this.hubContext.Clients.All.SendAsync("messageReceivedFromApi", message);
-
-            //additional business logic 
         }
 
         [HttpGet("notifications")] 

@@ -47,11 +47,7 @@ namespace Handymand.Utilities.JWTUtils
             string result = null;
             await Task.Run(() => result = tokenHandler.WriteToken(token));
 
-
-            
-
             return result;
-
 
         }
 

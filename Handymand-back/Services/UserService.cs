@@ -130,7 +130,6 @@ namespace Handymand.Services
             }
             else
             {
-                //JWT generation (Json Web Token)
 
                 var jwtToken = await _jwtUtils.GenerateJWTToken(user);
 

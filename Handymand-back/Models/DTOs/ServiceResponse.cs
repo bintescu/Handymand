@@ -29,7 +29,6 @@ namespace Handymand.Models.DTOs
         {
             var keybytes = Encoding.UTF8.GetBytes(key);
 
-            //DECRYPT FROM CRIPTOJS
             var encrypted = Convert.FromBase64String(encryptedValue);
             var decriptedFromJavascript = DecryptStringFromBytes(encrypted, keybytes, iv);
 

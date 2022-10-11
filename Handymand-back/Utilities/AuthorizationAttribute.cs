@@ -18,24 +18,30 @@ namespace Handymand.Utilities
             _roles = roles;
         }
 
+        //In Functie de rolurile definite in aplicatie
+        //Verificam daca rolurile primite ca parametru la acest atribut exista
+        //Daca este sunt null atunci intoarce unauthorized.
+
+
+        /*            var user = (User)context.HttpContext.Items["User"];
+
+            if (user == null || !_roles.Contains(user.Role))
+            {
+                context.Result = unauthorizedStatusCodeObject;
+            }*/
+
+
+
         public void OnAuthorization(AuthorizationFilterContext context)
         {
             var unauthorizedStatusCodeObject = new JsonResult(new { Message = "Unauthorized" }) { StatusCode = StatusCodes.Status401Unauthorized };
 
-            //In Functie de rolurile definite in aplicatie
-            //Verificam daca rolurile primite ca parametru la acest atribut exista
-            //Daca este sunt null atunci intoarce unauthorized.
             if (_roles == null)
             {
                 context.Result = unauthorizedStatusCodeObject;
             }
 
-            /*            var user = (User)context.HttpContext.Items["User"];
 
-                        if (user == null || !_roles.Contains(user.Role))
-                        {
-                            context.Result = unauthorizedStatusCodeObject;
-                        }*/
 
             var user = context.HttpContext.User;
 

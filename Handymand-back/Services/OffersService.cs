@@ -173,8 +173,13 @@ namespace Handymand.Services
         {
             var list = await _offersRepository.GetAllMyAcceptedOffersOrderByDateCreated(id);
 
+            if (list == null)
+            {
+                return null;
+            }
             var result = list.Where(j => j.JobOffer != null && 
                                     j.JobOffer.Available == false &&
+                                    j.JobOffer.Contract != null &&
                                     j.JobOffer.Contract.Valid == true)
                             .Select(j => new OffersForLoggedInDTO() 
                             {
