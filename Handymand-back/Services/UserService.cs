@@ -67,7 +67,7 @@ namespace Handymand.Services
             return dto;
         }
 
-        public UserDTO ConvertToDTOForAdminGetUser(User user)
+        private UserDTO ConvertToDTOForAdminGetUser(User user)
         {
             UserDTO dto = new UserDTO();
             dto.Id = user.Id;
@@ -89,7 +89,7 @@ namespace Handymand.Services
             return dto;
         }
 
-        public MyUserDTO ConvertToDTOForGetMyUser(User user)
+        private MyUserDTO ConvertToDTOForGetMyUser(User user)
         {
             MyUserDTO dto = new MyUserDTO();
             dto.Id = user.Id;
