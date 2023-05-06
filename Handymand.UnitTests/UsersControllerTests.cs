@@ -62,7 +62,6 @@ namespace Handymand.UnitTests
 
 			var userService = new UserService(userRepository, jwtUtils.Object, clientRepo.Object, freelancerRepo.Object);
 
-
 			_controller = new UsersController(userService, appSettings);
 
 		}
